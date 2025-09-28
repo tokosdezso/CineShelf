@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Domains\Genre\Models\Genre;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class GenreSeeder extends Seeder
 {
