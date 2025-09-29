@@ -16,6 +16,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Domains\Genre\Filament\Resources\GenreResource;
 use App\Domains\Movie\Filament\Resources\MovieResource;
+use App\Domains\PopularMovie\Filament\Resources\PopularMovieResource;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -61,6 +62,7 @@ class AdminPanelProvider extends PanelProvider
                 GenreResource::class,
                 MovieResource::class,
                 MovieListResource::class,
+                PopularMovieResource::class,
             ]);
     }
 }
