@@ -1,16 +1,49 @@
 <script setup>
-  import GuestLayout from '../components/GuestLayout.vue';
+import GuestLayout from '../components/GuestLayout.vue';
+import axiosClient from '../axios';
+import { ref } from 'vue';
+import router from '../router.js';
+
+const data = ref({
+  email: '',
+  password: '',
+})
+
+const errorMessage = ref('')
+
+// login form submit
+function submit() {
+  axiosClient.get('/sanctum/csrf-cookie').then(response => {
+    axiosClient.post('/login', data.value)
+      .then(response => {
+        router.push({name: 'Home'})
+      })
+      .catch(error => {
+        console.log(error.response);
+        errorMessage.value = error.response.data.errors;
+      });
+  });
+}
 </script>
 
 <template>
   <GuestLayout>
-      <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Sign in to your account</h2>
-      <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-      <form action="#" method="POST" class="space-y-6">
+    <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Sign in to your account</h2>
+    <div v-if="errorMessage" class="mt-4 py-2 px-3 rounded text-white bg-red-400">
+      {{errorMessage}}
+    </div>
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+      <form @submit.prevent="submit" class="space-y-6">
         <div>
           <label for="email" class="block text-sm/6 font-medium text-gray-100">Email address</label>
           <div class="mt-2">
-            <input id="email" type="email" name="email" required autocomplete="email" class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+            <input id="email" 
+              v-model="data.email"
+              type="email" 
+              name="email" 
+              required 
+              autocomplete="email" 
+              class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
           </div>
         </div>
         <div>
@@ -18,7 +51,13 @@
             <label for="password" class="block text-sm/6 font-medium text-gray-100">Password</label>
           </div>
           <div class="mt-2">
-            <input id="password" type="password" name="password" required autocomplete="current-password" class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+            <input id="password"
+              v-model="data.password"
+              type="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
           </div>
         </div>
         <div>

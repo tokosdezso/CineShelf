@@ -1,12 +1,4 @@
 <template>
-  <!--
-    This example requires updating your template:
-
-    ```
-    <html class="h-full bg-gray-900">
-    <body class="h-full">
-    ```
-  -->
   <div class="min-h-full">
     <Disclosure as="nav" class="bg-gray-800/50" v-slot="{ open }">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -33,7 +25,8 @@
                 <MenuButton class="relative flex max-w-xs items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                   <span class="absolute -inset-1.5" />
                   <span class="sr-only">Open user menu</span>
-                  <img class="size-8 rounded-full outline -outline-offset-1 outline-white/10" :src="user.imageUrl" alt="" />
+                  <UserIcon class="size-8 p-1 rounded-full outline -outline-offset-1 outline-white/10" />
+                  <div class="text-base/5 text-gray-300 text-white p-2">{{ user.name }}</div>                
                 </MenuButton>
 
                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform scale-100" leave-to-class="transform opacity-0 scale-95">
@@ -72,7 +65,7 @@
         <div class="border-t border-white/10 pt-4 pb-3">
           <div class="flex items-center px-5">
             <div class="shrink-0">
-              <img class="size-10 rounded-full outline -outline-offset-1 outline-white/10" :src="user.imageUrl" alt="" />
+                  <UserIcon class="size-10 p-1 rounded-full outline -outline-offset-1 outline-white/10" />
             </div>
             <div class="ml-3">
               <div class="text-base/5 font-medium text-white">{{ user.name }}</div>
@@ -94,21 +87,26 @@
 
 <script setup>
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { Bars3Icon, XMarkIcon, UserIcon } from '@heroicons/vue/24/outline'
 import { RouterLink } from 'vue-router'
+import axiosClient from '../axios'
+import router from '../router'
+import { computed } from 'vue'
+import useUserStore from '../stores/user.js'
 
-const user = {
-  name: 'Tom Cook',
-  email: 'tom@example.com',
-  imageUrl:
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-}
+const userStore = useUserStore();
+
+const user = computed(() => userStore.user);
+
 const navigation = [
   { name: 'Movies', to: {name: 'Home'}, current: true },
   { name: 'My Lists', to: {name: 'MyLists'}, current: false },
 ]
 
 function logout() {
-  console.log('Logging out...')
+  axiosClient.post('/logout')
+    .then(() => {
+      router.push({ name: 'Login' })
+  })
 }
 </script>

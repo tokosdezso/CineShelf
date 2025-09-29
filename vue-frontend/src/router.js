@@ -5,7 +5,7 @@ import MyLists from "./pages/MyLists.vue";
 import Login from "./pages/Login.vue";
 import Signup from "./pages/Signup.vue";
 import NotFound from "./pages/NotFound.vue";
-// import { useUserStore } from "@/stores/user";
+import useUserStore from "./stores/user.js";
 
 const routes = [
   {
@@ -15,15 +15,15 @@ const routes = [
       {path: '/', name: 'Home', component: Home},
       {path: '/lists', name: 'MyLists', component: MyLists},
     ],
-    // beforeEnter: async (to, from, next) => {
-    //   try {
-    //     const userStore = useUserStore();
-    //     await userStore.fetchUser();
-    //     next();
-    //   } catch (error) {
-    //     next(false); // Cancel navigation if data fetching fails
-    //   }
-    // },
+    beforeEnter: async (to, from, next) => {
+      try {
+        const userStore = useUserStore();
+        await userStore.fetchUser();
+        next();
+      } catch (error) {
+        next(false); // Cancel navigation if data fetching fails
+      }
+    },
   },
   {
     path: '/login',
