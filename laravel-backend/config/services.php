@@ -41,6 +41,7 @@ return [
         'api_read_access_token' => env('TMDB_API_READ_ACCESS_TOKEN'),
         'base_url' => env('TMDB_BASE_URL', 'https://api.themoviedb.org'),
         'popular_movies_uri' => env('TMDB_POPULAR_MOVIES_URI', '/3/movie/popular'),
+        'movie_details_uri' => env('TMDB_MOVIE_DETAILS_URL', '/3/movie'),
     ],
 
 ];
