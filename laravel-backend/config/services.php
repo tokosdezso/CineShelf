@@ -42,6 +42,8 @@ return [
         'base_url' => env('TMDB_BASE_URL', 'https://api.themoviedb.org'),
         'popular_movies_uri' => env('TMDB_POPULAR_MOVIES_URI', '/3/movie/popular'),
         'movie_details_uri' => env('TMDB_MOVIE_DETAILS_URL', '/3/movie'),
+        'image_base_url' => env('TMDB_IMAGE_BASE_URL', 'https://image.tmdb.org/t/p'),
+        'popular_movie_display_number' => env('TMDB_POPULAR_MOVIE_NUMBER', '10'),
     ],
 
 ];
