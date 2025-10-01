@@ -1,4 +1,20 @@
 <script setup>
+import { onMounted, ref } from 'vue';
+import axiosClient from '../axios'
+import MovieListsElement from '../components/MovieListElement.vue';
+
+const movieLists = ref([]);
+
+onMounted(() => {
+  axiosClient.get('/api/movie-lists')
+    .then(response => {
+      movieLists.value = response.data;
+    })
+    .catch(error => {
+      console.log(error);
+    });
+});
+
 </script>
 
 <template>
@@ -9,7 +25,9 @@
     </header>
     <main>
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-    
+        <ul v-for="movieList in movieLists" :key="movieList.id" class="bg-gray-00 overflow-hidden shadow rounded-lg py-5">
+          <MovieListsElement :movieList="movieList" />
+        </ul>
       </div>
     </main>
 </template>
