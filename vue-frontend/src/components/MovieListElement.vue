@@ -10,7 +10,9 @@ defineProps({
 </script>
 
 <template>
-  <li :key="movieList.id" class="bg-gray-200 overflow-hidden shadow rounded-lg flex justify-between gap-x-6 py-5">
+  <li @click="$router.push({ name: 'SingleMovieList', params: { id: movieList.id } })" 
+    :key="movieList.id" 
+    class="bg-gray-200 overflow-hidden shadow rounded-lg flex justify-between gap-x-6 py-5">
     <div class="flex min-w-0 gap-x-4 items-center px-4">
       <ListBulletIcon class="h-6 w-6 flex-none text-gray-600" />
       <div class="min-w-0 flex px-1 items-center justify-center">

@@ -5,6 +5,7 @@ import MyLists from "./pages/MyLists.vue";
 import Login from "./pages/Login.vue";
 import Signup from "./pages/Signup.vue";
 import NotFound from "./pages/NotFound.vue";
+import SingleMovieList from "./pages/SingleMovieList.vue";
 import useUserStore from "./stores/user.js";
 
 const routes = [
@@ -14,6 +15,7 @@ const routes = [
     children: [
       {path: '/', name: 'Home', component: Home},
       {path: '/lists', name: 'MyLists', component: MyLists},
+      {path: '/movie-lists/:id', name: 'SingleMovieList', component: SingleMovieList},
     ],
     beforeEnter: async (to, from, next) => {
       try {
