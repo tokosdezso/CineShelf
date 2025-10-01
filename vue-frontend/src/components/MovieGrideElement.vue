@@ -1,8 +1,15 @@
 <template>
   <div class="relative min-h-full py-1">
-    <span v-if="rank" class="absolute top-2 left-2 bg-indigo-600 text-white px-2 py-1 rounded">
+    <span v-if="rank" class="absolute top-2 left-2 bg-indigo-600 text-gray-200 px-2 py-1 rounded">
       #{{ rank }}
     </span>
+    <button 
+      v-if="movieListId"
+      @click="removeMovie(movieListId, movie.id)"
+      class="absolute top-2 right-2 text-red-500 hover:text-red-600"
+      title="Delete">
+      <TrashIcon class="w-6 h-6" />
+    </button>
     <img :src="movie.poster_path" alt="Image" class="w-full h-48 object-contain">
     <div class="px-4 py-4">
       <h3 class="text-lg font-semibold text-gray-900">{{ movie.title }}</h3>
@@ -22,6 +29,9 @@
 
 <script setup>
 import { StarIcon as StarSolid } from '@heroicons/vue/24/solid'
+import router from '../router.js';
+import { TrashIcon } from '@heroicons/vue/24/outline'
+import axiosClient from '../axios';
 
 defineProps({
   movie: {
@@ -31,6 +41,24 @@ defineProps({
   rank: {
     type: Number,
     required: false
-  }
-})
+  },
+  movieListId: {
+    type: Number,
+    required: false
+  },
+});
+
+// remove movie from the list
+function removeMovie(movieListId, movieId) {
+  axiosClient.put(`/api/movie-lists/${movieListId}`, { remove_movie_id: movieId })
+    .then(() => {
+      alert('The list has been updated.');
+      // Refresh the current page to show the restored list
+      router.go(0);
+    })
+    .catch(error => {
+      console.log(error);
+      alert(error.response.data.message);
+    });
+}
 </script>

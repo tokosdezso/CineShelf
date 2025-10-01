@@ -77,6 +77,12 @@ class MovieListController extends Controller
             $movieList->restore();
         }
 
+        // If a movie ID is provided, remove that movie from the list
+        if (request()->has('remove_movie_id')) {
+            $movieId = request()->input('remove_movie_id'); 
+            $movieList->movies()->detach($movieId);
+        }
+
         $movieList->restore();
         return response()->json(['message' => 'Movie list updated successfully!']);
     }

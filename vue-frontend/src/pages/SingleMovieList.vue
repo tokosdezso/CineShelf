@@ -34,7 +34,9 @@ function deleteMovieList(id) {
       })
       .catch(error => {
         console.log(error);
-        alert('An error occurred while deleting the list.');
+        if (error.response.status === 404) {
+          errorMessage.value = error.response.data.message;
+        }
       });
   }
 }
@@ -49,7 +51,9 @@ function restore(id) {
     })
     .catch(error => {
       console.log(error);
-      alert('An error occurred while restoring the list.');
+      if (error.response.status === 404) {
+        errorMessage.value = error.response.data.message;
+      }
     });
 }
 
@@ -85,7 +89,7 @@ function restore(id) {
           </div>
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <div v-for="movie in movieList.movies" :key="movie.id" class="bg-gray-200 overflow-hidden shadow rounded-lg">
-              <MovieGrideElement :movie="movie" />
+              <MovieGrideElement :movieListId="movieList.id" :movie="movie" />
             </div>
           </div>
         </div>
