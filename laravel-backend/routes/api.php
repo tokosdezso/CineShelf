@@ -15,5 +15,5 @@ Route::middleware(['auth:sanctum'])
             ->only(['index']);
 
         Route::apiResource('/movie-lists', MovieListController::class)
-            ->only(['index', 'show']);
+            ->only(['index', 'show', 'destroy', 'update']);
     });

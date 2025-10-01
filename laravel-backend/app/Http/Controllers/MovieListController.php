@@ -13,7 +13,7 @@ class MovieListController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $movieLists = MovieList::with('movies')
+        $movieLists = MovieList::withTrashed()->with('movies')
             ->where('user_id', $user->id)
             ->get();
         return response()->json($movieLists);
@@ -25,7 +25,7 @@ class MovieListController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $movieList = MovieList::with('movies')->where('user_id', $user->id)->find($id);
+        $movieList = MovieList::withTrashed()->with('movies')->where('user_id', $user->id)->find($id);
 
         if (!$movieList) {
             return response()->json(['message' => 'Movie list not found or it is not your list!'], 404);
@@ -42,5 +42,42 @@ class MovieListController extends Controller
             return $movie;
         });
         return response()->json($movieList);
+    }
+
+    /**
+     * Soft delete the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        $movieList = MovieList::where('user_id', $user->id)->find($id);
+
+        if (!$movieList) {
+            return response()->json(['message' => 'Movie list not found or it is not your list!'], 404);
+        }
+
+        $movieList->delete();
+        return response()->json(['message' => 'Movie list deleted successfully!']);
+    }
+    
+    /**
+     * Restore the specified resource from storage.
+     */
+    public function update($id)
+    {
+        $user = Auth::user();
+        $movieList = MovieList::withTrashed()->where('user_id', $user->id)->find($id);
+
+        if (!$movieList) {
+            return response()->json(['message' => 'Movie list not found or it is not your list!'], 404);
+        }
+        
+        // Check if the movie list is soft deleted
+        if ($movieList->trashed()) {
+            $movieList->restore();
+        }
+
+        $movieList->restore();
+        return response()->json(['message' => 'Movie list updated successfully!']);
     }
 }

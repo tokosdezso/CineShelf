@@ -3,15 +3,16 @@ import { onMounted, ref } from 'vue';
 import axiosClient from '../axios'
 import { useRoute } from 'vue-router'
 import MovieGrideElement from '../components/MovieGrideElement.vue';
+import router from '../router.js';
 
 const route = useRoute()
 const movieList = ref([]);
 const errorMessage = ref('')
 
+// fetch single movie list
 onMounted(() => {
   axiosClient.get(`/api/movie-lists/${route.params.id}`)
     .then(response => {
-      console.log(response.data);
       movieList.value = response.data;
     })
     .catch(error => {
@@ -21,6 +22,36 @@ onMounted(() => {
       }
     });
 });
+
+// delete movie list
+function deleteMovieList(id) {
+  if (confirm('Are you sure you want to delete this list?')) {
+    axiosClient.delete(`/api/movie-lists/${id}`)
+      .then(() => {
+        alert('The list has been deleted.');
+        // Redirect to MyLists page after deletion
+        router.push({ name: 'MyLists' });
+      })
+      .catch(error => {
+        console.log(error);
+        alert('An error occurred while deleting the list.');
+      });
+  }
+}
+
+// restore movie list
+function restore(id) {
+  axiosClient.put(`/api/movie-lists/${id}`)
+    .then(() => {
+      alert('The list has been restored.');
+      // Refresh the current page to show the restored list
+      router.go(0);
+    })
+    .catch(error => {
+      console.log(error);
+      alert('An error occurred while restoring the list.');
+    });
+}
 
 </script>
 
@@ -46,8 +77,9 @@ onMounted(() => {
             <p class="text-lg text-gray-200">
               There {{ movieList.movies?.length > 1 ? 'are' : 'is' }} {{ movieList.movies?.length || 0 }} movie{{ movieList.movies?.length > 1 ? 's' : null}} in this list.
             </p>
-            <button type="button" 
-              class="rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            <button type="button"
+              @click="deleteMovieList(movieList.id)"
+              class="rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
               Delete
             </button>
           </div>
@@ -67,6 +99,7 @@ onMounted(() => {
             </p>
             <button 
               type="button"
+              @click="restore(movieList.id)"
               class="rounded-md bg-indigo-700 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
               Restore the list
             </button>
