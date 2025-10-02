@@ -91,12 +91,12 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { Bars3Icon, XMarkIcon, UserIcon } from '@heroicons/vue/24/outline'
 import { RouterLink } from 'vue-router'
-import axiosClient from '../axios'
-import router from '../router'
+import axiosClient from '../../axios'
+import router from '../../router'
 import { computed } from 'vue'
-import useUserStore from '../stores/user.js'
-import { useAddMovieModalStore } from '../stores/modal.js'
-import AddToMovieListModal from './AddToMovieListModal.vue'
+import useUserStore from '../../stores/user.js'
+import { useAddMovieModalStore } from '../../stores/modal.js'
+import AddToMovieListModal from './../AddToMovieListModal.vue'
 
 const userStore = useUserStore();
 

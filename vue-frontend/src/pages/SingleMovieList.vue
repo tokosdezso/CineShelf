@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import axiosClient from '../axios'
 import { useRoute } from 'vue-router'
-import MovieGrideElement from '../components/MovieGrideElement.vue';
+import MovieGrideElement from '../components/movie/MovieGrideElement.vue';
 import router from '../router.js';
 
 const route = useRoute()

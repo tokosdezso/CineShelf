@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import axiosClient from '../axios';
-import MovieListsElement from '../components/MovieListElement.vue';
-import CreateMovieList from '../components/CreateMovieList.vue';
+import MovieListsElement from '../components/movieList/MovieListElement.vue';
+import CreateMovieList from '../components/movieList/CreateMovieList.vue';
 
 const movieLists = ref([]);
 

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import MovieGrideElement from '../components/MovieGrideElement.vue';
+import MovieGrideElement from '../components/movie/MovieGrideElement.vue';
 import axiosClient from '../axios'
 
 const popularMovies = ref([]);

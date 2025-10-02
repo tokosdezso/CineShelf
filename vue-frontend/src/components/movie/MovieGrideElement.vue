@@ -36,10 +36,10 @@
 
 <script setup>
 import { StarIcon as StarSolid } from '@heroicons/vue/24/solid'
-import router from '../router.js';
+import router from '../../router.js';
 import { TrashIcon, PlusIcon } from '@heroicons/vue/24/outline'
-import axiosClient from '../axios';
-import { useAddMovieModalStore } from '../stores/modal.js'
+import axiosClient from '../../axios';
+import { useAddMovieModalStore } from '../../stores/modal.js'
 
 defineProps({
   movie: {

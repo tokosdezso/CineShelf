@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import DefaultLayout from "./components/DefaultLayout.vue";
+import DefaultLayout  from "./components/layers/DefaultLayout.vue";
 import Home from "./pages/Home.vue";
 import MyLists from "./pages/MyLists.vue";
 import Login from "./pages/Login.vue";

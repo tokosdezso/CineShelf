@@ -1,7 +1,7 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue';
 import { ref } from 'vue';
-import axiosClient from '../axios';
+import axiosClient from '../../axios';
 
 const props = defineProps({
   movieLists: Array
