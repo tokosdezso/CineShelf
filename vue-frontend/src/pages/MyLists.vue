@@ -7,7 +7,7 @@ import CreateMovieList from '../components/movieList/CreateMovieList.vue';
 const movieLists = ref([]);
 
 onMounted(() => {
-  axiosClient.get('/api/movie-lists')
+  axiosClient.get('/api/movie-lists?with_trashed=1')
     .then(response => {
       movieLists.value = response.data;
     })

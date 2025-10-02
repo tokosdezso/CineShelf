@@ -4,18 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Domains\MovieList\Models\MovieList;
+use Illuminate\Http\Request;
 
 class MovieListController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $movieLists = MovieList::withTrashed()->with('movies')
-            ->where('user_id', $user->id)
-            ->get();
+
+        $withTrashed = $request->boolean('with_trashed', false);
+
+        $query = MovieList::with('movies')->where('user_id', $user->id);
+
+        // If with_trashed is true, include soft deleted movie lists
+        if ($withTrashed) {
+            $query->withTrashed();
+        }
+
+        $movieLists = $query->get();
+
         return response()->json($movieLists);
     }
 
