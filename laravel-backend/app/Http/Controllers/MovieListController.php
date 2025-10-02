@@ -83,6 +83,12 @@ class MovieListController extends Controller
             $movieList->movies()->detach($movieId);
         }
 
+        // If a movie ID is provided, add that movie to the list
+        if (request()->has('add_movie_id')) {
+            $movieId = request()->input('add_movie_id'); 
+            $movieList->movies()->syncWithoutDetaching($movieId);
+        }
+
         $movieList->restore();
         return response()->json(['message' => 'Movie list updated successfully!']);
     }

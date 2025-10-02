@@ -10,6 +10,13 @@
       title="Delete">
       <TrashIcon class="w-6 h-6" />
     </button>
+    <button 
+      v-else
+      @click="openAddModal(movie.id, movie.title)"
+      class="absolute top-2 right-2 text-indigo-500 hover:text-indigo-600 rounded-full border border-indigo-500 hover:border-indigo-600 p-1"
+      title="Add">
+      <PlusIcon class="w-6 h-6" />
+    </button>
     <img :src="movie.poster_path" alt="Image" class="w-full h-48 object-contain">
     <div class="px-4 py-4">
       <h3 class="text-lg font-semibold text-gray-900">{{ movie.title }}</h3>
@@ -30,8 +37,9 @@
 <script setup>
 import { StarIcon as StarSolid } from '@heroicons/vue/24/solid'
 import router from '../router.js';
-import { TrashIcon } from '@heroicons/vue/24/outline'
+import { TrashIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import axiosClient from '../axios';
+import { useAddMovieModalStore } from '../stores/modal.js'
 
 defineProps({
   movie: {
@@ -60,5 +68,13 @@ function removeMovie(movieListId, movieId) {
       console.log(error);
       alert(error.response.data.message);
     });
+}
+
+const modalStore = useAddMovieModalStore()
+/**
+ * Open the add to movie list modal
+ */
+function openAddModal(movieId, movieTitle) {
+  modalStore.open(movieId, movieTitle)
 }
 </script>

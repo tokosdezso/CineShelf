@@ -82,6 +82,8 @@
       </DisclosurePanel>
     </Disclosure>
     <RouterView />
+
+    <AddToMovieListModal v-if="modalStore.isOpen" />
   </div>
 </template>
 
@@ -93,6 +95,8 @@ import axiosClient from '../axios'
 import router from '../router'
 import { computed } from 'vue'
 import useUserStore from '../stores/user.js'
+import { useAddMovieModalStore } from '../stores/modal.js'
+import AddToMovieListModal from './AddToMovieListModal.vue'
 
 const userStore = useUserStore();
 
@@ -102,6 +106,8 @@ const navigation = [
   { name: 'Movies', to: {name: 'Home'}, current: true },
   { name: 'My Lists', to: {name: 'MyLists'}, current: false },
 ]
+
+const modalStore = useAddMovieModalStore()
 
 function logout() {
   axiosClient.post('/logout')
