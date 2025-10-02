@@ -92,4 +92,23 @@ class MovieListController extends Controller
         $movieList->restore();
         return response()->json(['message' => 'Movie list updated successfully!']);
     }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store()
+    {
+        $user = Auth::user();
+        $movieList = MovieList::create([
+            'name' => request()->name,
+            'user_id' => $user->id,
+        ]);
+
+        if (!$movieList) {
+            return response()->json(['message' => 'Error creating movie list!'], 500);
+        }
+
+        $movieList->load('movies');
+        return response()->json($movieList);
+    }
 }

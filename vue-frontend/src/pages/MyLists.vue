@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import axiosClient from '../axios'
+import axiosClient from '../axios';
 import MovieListsElement from '../components/MovieListElement.vue';
+import CreateMovieList from '../components/CreateMovieList.vue';
 
 const movieLists = ref([]);
 
@@ -28,6 +29,7 @@ onMounted(() => {
         <ul v-for="movieList in movieLists" :key="movieList.id" class="bg-gray-00 overflow-hidden shadow rounded-lg py-5">
           <MovieListsElement :movieList="movieList" />
         </ul>
+        <CreateMovieList :movieLists="movieLists" @update:movieLists="movieLists = $event"/>
       </div>
     </main>
 </template>
