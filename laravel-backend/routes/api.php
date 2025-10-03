@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MovieController;
 use App\Http\Controllers\MovieListController;
 use App\Http\Controllers\PopularMovieController;
 
@@ -16,4 +17,7 @@ Route::middleware(['auth:sanctum'])
 
         Route::apiResource('/movie-lists', MovieListController::class)
             ->only(['index', 'show', 'destroy', 'update', 'store']);
+
+        Route::apiResource('/tmdb-movies', MovieController::class)
+            ->only(['show', 'store']);
     });

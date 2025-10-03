@@ -12,14 +12,17 @@
     </button>
     <button 
       v-else
-      @click="openAddModal(movie.id, movie.title)"
+      @click="openAddModal(movie)"
       class="absolute top-2 right-2 text-indigo-500 hover:text-indigo-600 rounded-full border border-indigo-500 hover:border-indigo-600 p-1"
       title="Add">
       <PlusIcon class="w-6 h-6" />
     </button>
     <img :src="movie.poster_path" alt="Image" class="w-full h-48 object-contain">
     <div class="px-4 py-4">
-      <h3 class="text-lg font-semibold text-gray-900">{{ movie.title }}</h3>
+      <h3 @click="$router.push({ name: 'SingleMovie', params: { id: movie.tmdb_id } })"
+        class="text-lg font-semibold text-gray-900">
+        {{ movie.title }}
+      </h3>
       <p class="text-sm text-gray-500 mb-4">
         {{ movie.overview.length > 120 ? movie.overview.slice(0, 120) + '...' : movie.overview }}
       </p>
@@ -74,7 +77,18 @@ const modalStore = useAddMovieModalStore()
 /**
  * Open the add to movie list modal
  */
-function openAddModal(movieId, movieTitle) {
-  modalStore.open(movieId, movieTitle)
+function openAddModal(movie) {
+  if (!movie.id) {
+    axiosClient.post('/api/tmdb-movies', { tmdb_id: movie.tmdb_id })
+      .then(response => {
+        modalStore.open(response.data.id, response.data.title)
+      })
+      .catch(error => {
+        console.log(error);
+        alert(error.response.data.message);
+      });
+  } else {
+    modalStore.open(movie.id, movie.title)    
+  }
 }
 </script>
