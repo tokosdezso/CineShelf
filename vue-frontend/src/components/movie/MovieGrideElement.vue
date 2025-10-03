@@ -26,12 +26,21 @@
       <p class="text-sm text-gray-500 mb-4">
         {{ movie.overview.length > 120 ? movie.overview.slice(0, 120) + '...' : movie.overview }}
       </p>
-      <div class="flex flex-wrap gap-4">
-        <span class="flex items-center justify-center text-sm font-medium text-indigo-600">Rating: {{ movie.vote_average }} <StarSolid class="w-4 h-4 text-yellow-400" /></span>
-        <span class="flex items-center justify-center text-sm font-medium text-gray-900">Release: {{ movie.release_date }}</span>
-        <span class="flex items-center justify-center text-sm font-medium text-gray-600">Popularity: {{ movie.popularity }}</span>
-        <span class="flex items-center justify-center text-sm font-medium text-gray-900">Runtime: {{ movie.runtime ?? '-' }} min</span>
-        <span class="flex items-center justify-center text-sm font-medium text-gray-900">Language: {{ movie.language }}</span>
+      <div class="flex flex-row flex-wrap flex-around gap-4">
+        <div class="flex flex-col text-sm font-medium">
+          <span class="flex text-sm font-medium text-indigo-600">Rating: </span>
+          <span class="flex text-sm font-medium text-gray-900">Release: </span>
+          <span class="flex text-sm font-medium text-gray-900">Popularity: </span>
+          <span class="flex text-sm font-medium text-gray-900">Runtime: </span>
+          <span class="flex text-sm font-medium text-gray-900">Language: </span>
+        </div>
+        <div class="flex flex-col text-sm font-medium">
+          <span class="flex text-sm font-medium text-indigo-600">{{ movie.vote_average }} <StarSolid class="w-4 h-4 ml-1 text-yellow-500" /></span>
+          <span class="flex text-sm font-medium text-gray-900">{{ movie.release_date }}</span>
+          <span class="flex text-sm font-medium text-gray-600">{{ movie.popularity }}</span>
+          <span class="flex text-sm font-medium text-gray-900">{{ movie.runtime ?? '-' }} min</span>
+          <span class="flex text-sm font-medium text-gray-900">{{ movie.language }}</span>
+        </div>
       </div>
     </div>
   </div>

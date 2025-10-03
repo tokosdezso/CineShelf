@@ -44,7 +44,7 @@ class MovieController extends Controller
         try {
             $movie = $this->tmdb->getMovieDetails($id);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Movie not found in TMDB!'], 404);
+            return response()->json(['message' => 'Movie not found in TMDB!' . $e->getMessage()], $e->getCode());
         }
 
         if (!$movie) {
@@ -85,7 +85,11 @@ class MovieController extends Controller
         }
 
         // Get movie details from TMDB
-        $movie = $this->tmdb->getMovieDetails($tmdb_id);
+        try {
+            $movie = $this->tmdb->getMovieDetails($tmdb_id);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Movie not found in TMDB!' . $e->getMessage()], $e->getCode());
+        }
 
         // Save movie to database
         $movieModel = Movie::create(
@@ -121,4 +125,49 @@ class MovieController extends Controller
         return response()->json($movieModel);
     }
 
+    /**
+     * Get all movies from TMDB.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $query = $request->query('query');
+        $page = $request->query('page');
+
+        try {
+            $movies = $this->tmdb->getMovies($query, $page);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'No movies found in TMDB!' . $e->getMessage()], $e->getCode());
+        }
+
+        // If there are no results or it is empty
+        if (!$movies['results'] || empty($movies['results'])) {
+            return response()->json([]);
+        }
+
+        $imageBaseUrl = config('services.tmdb.image_base_url') . '/w500';
+
+        // Build an array like movie model
+        $movieModels = [];
+        foreach ($movies['results'] as $movie) {
+            $movieModel = [
+                'id'           => null,
+                'tmdb_id'      => $movie['id'],
+                'title'        => $movie['title'] ?? 'Untitled',
+                'language'     => $movie['original_language'] ?? 'en',
+                'popularity'   => $movie['popularity'] ?? 0.0000,
+                'vote_average' => $movie['vote_average'] ?? 0.00,
+                'release_date' => $movie['release_date'] ?? now(),
+                'poster_path'  => $movie['poster_path'] ? $imageBaseUrl . $movie['poster_path'] : null,
+                'overview'     => $movie['overview'] ?? '',
+                'runtime'      => $movie['runtime'] ?? null,
+            ];
+            $movieModels[] = $movieModel;
+        }
+
+        $movies['results'] = $movieModels;
+        return response()->json($movies);
+    }
 }

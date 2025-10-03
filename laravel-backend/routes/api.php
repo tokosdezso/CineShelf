@@ -19,5 +19,5 @@ Route::middleware(['auth:sanctum'])
             ->only(['index', 'show', 'destroy', 'update', 'store']);
 
         Route::apiResource('/tmdb-movies', MovieController::class)
-            ->only(['show', 'store']);
+            ->only(['show', 'store', 'index']);
     });
