@@ -48,7 +48,6 @@ function search() {
     params: filters.value
   })
     .then(response => {
-      console.log(response.data);
       movies.value = response.data.results;
       pagination.value.page = response.data.page !== 0 ? response.data.page : 1;
       pagination.value.total_pages = response.data.total_pages;

@@ -31,7 +31,7 @@ class MovieController extends Controller
         $imageBaseUrl = config('services.tmdb.image_base_url') . '/w500';
 
         // Check if the movie is already in the database
-        $movie = Movie::where('tmdb_id', $id)->first();
+        $movie = Movie::where('tmdb_id', $id)->with('genres')->first();
 
         if ($movie) {
             $movie->poster_path = $movie->poster_path 
@@ -63,6 +63,7 @@ class MovieController extends Controller
             'poster_path'  => $movie['poster_path'] ?? '/default.jpg',
             'overview'     => $movie['overview'] ?? '',
             'runtime'      => $movie['runtime'] ?? null,
+            'genres'       => $movie['genres'] ?? [],
         ];
 
         $movieModel['poster_path'] = $movieModel['poster_path'] 

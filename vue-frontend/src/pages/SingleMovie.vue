@@ -20,7 +20,7 @@ onMounted(() => {
     })
     .catch(error => {
       console.log(error);
-      if (error.response.status === 404) {
+      if (error.response.status === 404 || error.response.status === 403) {
         console.log(error.response.data.message);
         errorMessage.value = error.response.data.message;
       }
@@ -65,6 +65,7 @@ function openAddModal(movie) {
           </div>
           <div class="pt-12 lg:row-span-3 lg:mt-0 relative">
             <p class="text-m py-2 tracking-tight text-gray-100">{{ movie.overview }}</p>
+            <span class="flex py-2 text-sm font-medium text-gray-100">Genres: {{ movie.genres?.map((genre) => genre.name).join(', ') }}</span>
             <span class="flex py-2 text-sm font-medium text-indigo-300">Rating: {{ movie.vote_average }} <StarSolid class="w-4 h-4 text-yellow-400" /></span>
             <span class="flex py-2 text-sm font-medium text-gray-100">Release: {{ movie.release_date }}</span>
             <span class="flex py-2 text-sm font-medium text-gray-100">Popularity: {{ movie.popularity }}</span>
