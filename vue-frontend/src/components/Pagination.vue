@@ -45,7 +45,7 @@ const pages = computed(() => {
 </script>
 
   <template>
-  <div class="flex items-center justify-between border-t border-white/10 px-4 py-3 sm:px-6">
+  <div v-if="props.pagination.total_pages > 1" class="flex items-center justify-between border-t border-white/10 px-4 py-3 sm:px-6">
     <div class="flex flex-1 justify-between sm:hidden">
       <button
         @click="goToPage(props.pagination.page - 1)"
@@ -67,11 +67,11 @@ const pages = computed(() => {
         <p class="text-sm text-gray-200">
           Showing
           {{ ' ' }}
-          <span class="font-medium">{{ (pagination.page - 1) * 20 + 1  }}</span>
+          <span class="font-medium">{{ (pagination.page - 1) * (pagination.per_page ?? 20) + 1  }}</span>
           {{ ' ' }}
           to
           {{ ' ' }}
-          <span class="font-medium">{{ pagination.page * 20 }}</span>
+          <span class="font-medium">{{ pagination.page * (pagination.per_page ?? 20) }}</span>
           {{ ' ' }}
           of
           {{ ' ' }}

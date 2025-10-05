@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MovieController;
+use App\Http\Controllers\GenresController;
 use App\Http\Controllers\MovieListController;
 use App\Http\Controllers\PopularMovieController;
 
@@ -20,4 +21,7 @@ Route::middleware(['auth:sanctum'])
 
         Route::apiResource('/tmdb-movies', MovieController::class)
             ->only(['show', 'store', 'index']);
+
+        Route::apiResource('/gneres', GenresController::class)
+            ->only(['index']);
     });

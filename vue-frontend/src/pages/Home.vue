@@ -38,7 +38,6 @@ function performSearch(query) {
 
 // Search movies requested from pagination
 function performPagination(page) {
-  console.log(page);
   filters.value.page = page;
   search();
 }
@@ -64,8 +63,6 @@ function search() {
 
 // scroll to top
 function scrollToTop() {
-  console.log('scrolling to top');
-  console.log('animation scrolling to top');
   window.scrollTo({
     top: 0,
     behavior: 'smooth',

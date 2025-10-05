@@ -47,4 +47,8 @@ return [
         'movie_search_uri' => env('TMDB_MOVIE_SEARCH_URI', '/3/search/movie'),
     ],
 
+    'pagination' => [
+        'movies_per_page' => env('MOVIES_PER_PAGE', '20'),
+    ],
+
 ];

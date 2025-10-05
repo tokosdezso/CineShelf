@@ -2,12 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use App\Services\MovieProcessor;
 use Illuminate\Support\Facades\Auth;
 use App\Domains\MovieList\Models\MovieList;
-use Illuminate\Http\Request;
 
 class MovieListController extends Controller
 {
+    // Movie service
+    private MovieProcessor $movieProcessor;
+
+    /**
+     * Constructs a new MovieListController instance.
+     *
+     * @param MovieProcessor $movieProcessor The movie service object.
+     */
+    public function __construct(MovieProcessor $movieProcessor)
+    {
+        $this->movieProcessor = $movieProcessor;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -32,26 +46,36 @@ class MovieListController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $user = Auth::user();
-        $movieList = MovieList::withTrashed()->with('movies')->where('user_id', $user->id)->find($id);
+        $filters = [
+            'with_genres'       => $request->input('with_genres'),
+            'vote_average_gte'  => $request->input('vote_average_gte'),
+            'vote_average_lte'  => $request->input('vote_average_lte'),
+            'release_date_gte'  => $request->input('release_date_gte'),
+            'release_date_lte'  => $request->input('release_date_lte'),
+            'sort_by'           => $request->input('sort_by'),
+            'page'              => $request->input('page', 1),
+        ];
+        $filters = array_filter($filters);
+
+        $movieList = MovieList::withTrashed()->where('user_id', $user->id)->find($id);
 
         if (!$movieList) {
             return response()->json(['message' => 'Movie list not found or it is not your list!'], 404);
         }
 
-        //image TMDB base URL from config
-        $imageBaseUrl = config('services.tmdb.image_base_url') . '/w500';
-        $movieList->movies->transform(function ($movie) use ($imageBaseUrl) {
-            // poster_path full URL
-            $movie->poster_path = $movie->poster_path 
-                ? $imageBaseUrl . $movie->poster_path 
-                : null;
-
-            return $movie;
-        });
-        return response()->json($movieList);
+        try{
+            $movies = $this->movieProcessor->movieListMovies($movieList, $filters);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error processing movies in list!'], $e->getCode());
+        }
+        return response()->json([
+            'id' => $movieList->id,
+            'name' => $movieList->name,
+            'movies' => $movies,
+        ]);
     }
 
     /**

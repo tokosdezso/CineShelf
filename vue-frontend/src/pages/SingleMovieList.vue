@@ -4,16 +4,54 @@ import axiosClient from '../axios'
 import { useRoute } from 'vue-router'
 import MovieGrideElement from '../components/movie/MovieGrideElement.vue';
 import router from '../router.js';
+import Filters from '../components/Filters.vue';
+import Pagination from '../components/Pagination.vue';
 
 const route = useRoute()
 const movieList = ref([]);
+const filters = ref({
+  with_genres: '',
+  vote_average_gte: '',
+  vote_average_lte: '',
+  release_date_gte: '',
+  release_date_lte: '',
+  sort_by: '',
+  page: 1,
+})
 const errorMessage = ref('')
+const pagination = ref({
+  page: 1,
+  total_pages: 1,
+  total_results: 0,
+  per_page: 20,
+});
 
 // fetch single movie list
 onMounted(() => {
-  axiosClient.get(`/api/movie-lists/${route.params.id}`)
+    search();
+});
+
+// filter movie list
+function performFiltering(selectedFilters) {
+  filters.value = selectedFilters;
+  search();
+}
+
+function performPagination(page) {
+  filters.value.page = page;
+  search();
+}
+
+function search() {
+  axiosClient.get(`/api/movie-lists/${route.params.id}`, {
+    params: filters.value
+  })
     .then(response => {
       movieList.value = response.data;
+      pagination.value.page = response.data.movies.current_page !== 0 ? response.data.movies.current_page : 1;
+      pagination.value.total_pages = response.data.movies.last_page;
+      pagination.value.total_results = response.data.movies.total;
+      pagination.value.per_page = response.data.movies.per_page;
     })
     .catch(error => {
       console.log(error);
@@ -21,7 +59,7 @@ onMounted(() => {
         errorMessage.value = error.response.data.message;
       }
     });
-});
+}
 
 // delete movie list
 function deleteMovieList(id) {
@@ -79,7 +117,7 @@ function restore(id) {
           </div>
           <div class="my-4 py-2 rounded text-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <p class="text-lg text-gray-200">
-              There {{ movieList.movies?.length > 1 ? 'are' : 'is' }} {{ movieList.movies?.length || 0 }} movie{{ movieList.movies?.length > 1 ? 's' : null}} in this list.
+              There {{ movieList.movies?.total > 1 ? 'are' : 'is' }} {{ movieList.movies?.total || 0 }} movie{{ movieList.movies?.total > 1 ? 's' : null}} in this filtered list.
             </p>
             <button type="button"
               @click="deleteMovieList(movieList.id)"
@@ -87,11 +125,13 @@ function restore(id) {
               Delete
             </button>
           </div>
+          <Filters @apply-filters="performFiltering" />
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <div v-for="movie in movieList.movies" :key="movie.id" class="bg-gray-200 overflow-hidden shadow rounded-lg">
+            <div v-for="movie in movieList.movies?.data" :key="movie.id" class="bg-gray-200 overflow-hidden shadow rounded-lg">
               <MovieGrideElement :movieListId="movieList.id" :movie="movie" />
             </div>
           </div>
+          <Pagination @paginate="performPagination" :pagination="pagination"/>
         </div>
         <div v-else >
           <div class="flex items-center justify-center py-5">
