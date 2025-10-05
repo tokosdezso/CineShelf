@@ -55,7 +55,7 @@ function search() {
     })
     .catch(error => {
       console.log(error);
-      if (error.response.status === 404) {
+      if (error.response.status === 404 || error.response.status === 403) {
         errorMessage.value = error.response.data.message;
       }
     });
@@ -111,44 +111,46 @@ function restore(id) {
             {{errorMessage}}
           </p>
         </div>
-        <div v-else-if="!movieList.deleted_at" >
-          <div class="flex space-between items-center justify-between">
-            <h3 class="text-3xl font-bold tracking-tight text-gray-200 py-5 mr-2">{{movieList.name}}</h3>
-          </div>
-          <div class="my-4 py-2 rounded text-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <p class="text-lg text-gray-200">
-              There {{ movieList.movies?.total > 1 ? 'are' : 'is' }} {{ movieList.movies?.total || 0 }} movie{{ movieList.movies?.total > 1 ? 's' : null}} in this filtered list.
-            </p>
-            <button type="button"
-              @click="deleteMovieList(movieList.id)"
-              class="rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-              Delete
-            </button>
-          </div>
-          <Filters @apply-filters="performFiltering" />
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <div v-for="movie in movieList.movies?.data" :key="movie.id" class="bg-gray-200 overflow-hidden shadow rounded-lg">
-              <MovieGrideElement :movieListId="movieList.id" :movie="movie" />
+        <div v-else>
+          <div v-if="!movieList.deleted_at" >
+            <div class="flex space-between items-center justify-between">
+              <h3 class="text-3xl font-bold tracking-tight text-gray-200 py-5 mr-2">{{movieList.name}}</h3>
             </div>
+            <div class="my-4 py-2 rounded text-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <p class="text-lg text-gray-200">
+                There {{ movieList.movies?.total > 1 ? 'are' : 'is' }} {{ movieList.movies?.total || 0 }} movie{{ movieList.movies?.total > 1 ? 's' : null}} in this filtered list.
+              </p>
+              <button type="button"
+                @click="deleteMovieList(movieList.id)"
+                class="rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                Delete
+              </button>
+            </div>
+            <Filters @apply-filters="performFiltering" />
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              <div v-for="movie in movieList.movies?.data" :key="movie.id" class="bg-gray-200 overflow-hidden shadow rounded-lg">
+                <MovieGrideElement :movieListId="movieList.id" :movie="movie" />
+              </div>
+            </div>
+            <Pagination @paginate="performPagination" :pagination="pagination"/>
           </div>
-          <Pagination @paginate="performPagination" :pagination="pagination"/>
-        </div>
-        <div v-else >
-          <div class="flex items-center justify-center py-5">
-            <h3 class="text-3xl font-bold tracking-tight text-gray-200 py-5">{{movieList.name}}</h3>
-          </div>
-          <div class="my-4 py-2 px-3 rounded text-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <p class="text-lg text-gray-200">
-              This list has been deleted. You are able to restore it.
-            </p>
-            <button 
-              type="button"
-              @click="restore(movieList.id)"
-              class="rounded-md bg-indigo-700 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-              Restore the list
-            </button>
-          </div>
-          <div class="flex items-center justify-center py-5">
+          <div v-else >
+            <div class="flex items-center justify-center py-5">
+              <h3 class="text-3xl font-bold tracking-tight text-gray-200 py-5">{{movieList.name}}</h3>
+            </div>
+            <div class="my-4 py-2 px-3 rounded text-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <p class="text-lg text-gray-200">
+                This list has been deleted. You are able to restore it.
+              </p>
+              <button 
+                type="button"
+                @click="restore(movieList.id)"
+                class="rounded-md bg-indigo-700 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                Restore the list
+              </button>
+            </div>
+            <div class="flex items-center justify-center py-5">
+            </div>
           </div>
         </div>
         <div class="flex items-center justify-center py-5">

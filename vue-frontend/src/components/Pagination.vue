@@ -45,7 +45,7 @@ const pages = computed(() => {
 </script>
 
   <template>
-  <div v-if="props.pagination.total_pages > 1" class="flex items-center justify-between border-t border-white/10 px-4 py-3 sm:px-6">
+  <div v-if="props.pagination.total_pages > 1" class="flex items-center justify-between border-t border-white/10 px-4 py-3 mt-3 sm:px-6">
     <div class="flex flex-1 justify-between sm:hidden">
       <button
         @click="goToPage(props.pagination.page - 1)"
