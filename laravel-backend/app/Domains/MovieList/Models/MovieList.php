@@ -6,8 +6,11 @@ use App\Models\User;
 use App\Domains\Movie\Models\Movie;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Domains\MovieList\Policies\MovieListPolicy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+#[UsePolicy(MovieListPolicy::class)]
 class MovieList extends Model
 {
     use SoftDeletes;

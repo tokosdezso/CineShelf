@@ -27,6 +27,8 @@ class MovieListController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', MovieList::class);
+
         $user = Auth::user();
 
         $withTrashed = $request->boolean('with_trashed', false);
@@ -48,7 +50,6 @@ class MovieListController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $user = Auth::user();
         $filters = [
             'with_genres'       => $request->input('with_genres'),
             'vote_average_gte'  => $request->input('vote_average_gte'),
@@ -60,7 +61,9 @@ class MovieListController extends Controller
         ];
         $filters = array_filter($filters);
 
-        $movieList = MovieList::withTrashed()->where('user_id', $user->id)->find($id);
+        $movieList = MovieList::withTrashed()->find($id);
+
+        $this->authorize('view', $movieList);
 
         if (!$movieList) {
             return response()->json(['message' => 'Movie list not found or it is not your list!'], 404);
@@ -75,6 +78,7 @@ class MovieListController extends Controller
             'id' => $movieList->id,
             'name' => $movieList->name,
             'movies' => $movies,
+            'deleted_at' => $movieList->deleted_at,
         ]);
     }
 
@@ -83,9 +87,10 @@ class MovieListController extends Controller
      */
     public function destroy($id)
     {
-        $user = Auth::user();
-        $movieList = MovieList::where('user_id', $user->id)->find($id);
+        $movieList = MovieList::find($id);
 
+        $this->authorize('delete', $movieList);
+        
         if (!$movieList) {
             return response()->json(['message' => 'Movie list not found or it is not your list!'], 404);
         }
@@ -99,8 +104,9 @@ class MovieListController extends Controller
      */
     public function update($id)
     {
-        $user = Auth::user();
-        $movieList = MovieList::withTrashed()->where('user_id', $user->id)->find($id);
+        $movieList = MovieList::withTrashed()->find($id);
+
+        $this->authorize('update', $movieList);
 
         if (!$movieList) {
             return response()->json(['message' => 'Movie list not found or it is not your list!'], 404);
@@ -132,6 +138,8 @@ class MovieListController extends Controller
      */
     public function store()
     {
+        $this->authorize('create', MovieList::class);
+
         $user = Auth::user();
         $movieList = MovieList::create([
             'name' => request()->name,
