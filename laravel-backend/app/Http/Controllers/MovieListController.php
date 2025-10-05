@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\MovieProcessor;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\MovieFilterRequest;
 use App\Domains\MovieList\Models\MovieList;
 
 class MovieListController extends Controller
@@ -29,18 +30,26 @@ class MovieListController extends Controller
     {
         $this->authorize('viewAny', MovieList::class);
 
-        $user = Auth::user();
+        try {
+            $request->validate([
+                'with_trashed' => 'nullable|boolean',
+            ]);
 
-        $withTrashed = $request->boolean('with_trashed', false);
+            $withTrashed = $request->boolean('with_trashed', false);
 
-        $query = MovieList::with('movies')->where('user_id', $user->id);
+            $user = Auth::user();
+            $query = MovieList::with('movies')->where('user_id', $user->id);
 
-        // If with_trashed is true, include soft deleted movie lists
-        if ($withTrashed) {
-            $query->withTrashed();
+            // If with_trashed is true, include soft deleted movie lists
+            if ($withTrashed) {
+                $query->withTrashed();
+            }
+
+            $movieLists = $query->get();
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error fetching movie lists!'], $e->getCode());
         }
-
-        $movieLists = $query->get();
 
         return response()->json($movieLists);
     }
@@ -48,19 +57,11 @@ class MovieListController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, $id)
+    public function show(MovieFilterRequest $request, $id)
     {
-        $filters = [
-            'with_genres'       => $request->input('with_genres'),
-            'vote_average_gte'  => $request->input('vote_average_gte'),
-            'vote_average_lte'  => $request->input('vote_average_lte'),
-            'release_date_gte'  => $request->input('release_date_gte'),
-            'release_date_lte'  => $request->input('release_date_lte'),
-            'sort_by'           => $request->input('sort_by'),
-            'page'              => $request->input('page', 1),
-        ];
+        $filters = $request->validated();
         $filters = array_filter($filters);
-
+        
         $movieList = MovieList::withTrashed()->find($id);
 
         $this->authorize('view', $movieList);
@@ -102,7 +103,7 @@ class MovieListController extends Controller
     /**
      * Restore the specified resource from storage.
      */
-    public function update($id)
+    public function update(Request $request, $id)
     {
         $movieList = MovieList::withTrashed()->find($id);
 
@@ -111,6 +112,11 @@ class MovieListController extends Controller
         if (!$movieList) {
             return response()->json(['message' => 'Movie list not found or it is not your list!'], 404);
         }
+
+        $validated = $request->validate([
+            'remove_movie_id' => 'nullable|integer|exists:movies,id',
+            'add_movie_id'    => 'nullable|integer|exists:movies,id',
+        ]);
         
         // Check if the movie list is soft deleted
         if ($movieList->trashed()) {
@@ -118,19 +124,20 @@ class MovieListController extends Controller
         }
 
         // If a movie ID is provided, remove that movie from the list
-        if (request()->has('remove_movie_id')) {
+        if (!empty($validated['remove_movie_id'])) {
             $movieId = request()->input('remove_movie_id'); 
             $movieList->movies()->detach($movieId);
+            return response()->json(['message' => 'Movie list updated successfully, remove movie!']);
         }
 
         // If a movie ID is provided, add that movie to the list
-        if (request()->has('add_movie_id')) {
+        if (!empty($validated['add_movie_id'])) {
             $movieId = request()->input('add_movie_id'); 
             $movieList->movies()->syncWithoutDetaching($movieId);
+            return response()->json(['message' => 'Movie list updated successfully, add movie!']);
         }
 
-        $movieList->restore();
-        return response()->json(['message' => 'Movie list updated successfully!']);
+        return response()->json(['message' => 'Error, no list updated!'], 500);
     }
 
     /**

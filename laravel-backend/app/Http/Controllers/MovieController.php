@@ -60,15 +60,11 @@ class MovieController extends Controller
             'popularity'   => $movie['popularity'] ?? 0.0000,
             'vote_average' => $movie['vote_average'] ?? 0.00,
             'release_date' => $movie['release_date'] ?? now(),
-            'poster_path'  => $movie['poster_path'] ?? '/default.jpg',
+            'poster_path'  => $movie['poster_path'] ? $imageBaseUrl . $movie['poster_path'] : null,
             'overview'     => $movie['overview'] ?? '',
             'runtime'      => $movie['runtime'] ?? null,
             'genres'       => $movie['genres'] ?? [],
         ];
-
-        $movieModel['poster_path'] = $movieModel['poster_path'] 
-            ? $imageBaseUrl . $movieModel['poster_path'] 
-            : null;
 
         return response()->json($movieModel);
     }
@@ -134,8 +130,13 @@ class MovieController extends Controller
      */
     public function index(Request $request)
     {
-        $query = $request->query('query');
-        $page = $request->query('page');
+        $validated = $request->validate([
+            'query' => 'string|min:3',
+            'page' => 'integer|min:1',
+        ]);
+
+        $query = $validated['query'];
+        $page = $validated['page'];
 
         try {
             $movies = $this->tmdb->getMovies($query, $page);
