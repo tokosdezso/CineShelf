@@ -3,9 +3,16 @@ import { onMounted, ref } from 'vue';
 import MovieGrideElement from '../components/movie/MovieGrideElement.vue';
 import axiosClient from '../axios'
 import SearchBar from '../components/SearchBar.vue';
+import Pagination from '../components/Pagination.vue';
 
 const movies = ref([]);
 const popular = ref(true);
+
+const pagination = ref({
+  page: 1,
+  total_pages: 1,
+  total_results: 0
+});
 
 const filters = ref({
   query: '',
@@ -23,20 +30,46 @@ onMounted(() => {
     });
 });
 
-// Search movies
+// Search movies requested from search bar
 function performSearch(query) {
   filters.value.query = query;
+  search();
+}
+
+// Search movies requested from pagination
+function performPagination(page) {
+  console.log(page);
+  filters.value.page = page;
+  search();
+}
+
+// Search movies from TMDB
+function search() {
   axiosClient.get('/api/tmdb-movies', {
     params: filters.value
   })
     .then(response => {
       console.log(response.data);
       movies.value = response.data.results;
+      pagination.value.page = response.data.page !== 0 ? response.data.page : 1;
+      pagination.value.total_pages = response.data.total_pages;
+      pagination.value.total_results = response.data.total_results;
       popular.value = false;
+      scrollToTop();
     })
     .catch(error => {
       console.log(error);
     });
+}
+
+// scroll to top
+function scrollToTop() {
+  console.log('scrolling to top');
+  console.log('animation scrolling to top');
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
 }
 
 </script>
@@ -57,6 +90,7 @@ function performSearch(query) {
         </div>
       </div>
     </div>
+    <Pagination v-if="!popular" @paginate="performPagination" :pagination="pagination"/>
   </main>
 </template>
 
