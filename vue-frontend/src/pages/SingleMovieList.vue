@@ -1,11 +1,12 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onUnmounted } from 'vue';
 import axiosClient from '../axios'
 import { useRoute } from 'vue-router'
 import MovieGrideElement from '../components/movie/MovieGrideElement.vue';
 import router from '../router.js';
 import Filters from '../components/Filters.vue';
 import Pagination from '../components/Pagination.vue';
+import MovieListElement from '../components/movie/MovieListElement.vue';
 
 const route = useRoute()
 const movieList = ref([]);
@@ -25,10 +26,14 @@ const pagination = ref({
   total_results: 0,
   per_page: 20,
 });
+const girdView = ref(true);
 
 // fetch single movie list
 onMounted(() => {
-    search();
+  // add window resize listener
+  window.addEventListener('resize', handleResize);
+  // search movie list
+  search();
 });
 
 // filter movie list
@@ -95,6 +100,21 @@ function restore(id) {
     });
 }
 
+// remove window resize listener
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+});
+
+// Toggle the view between grid and list
+function toggleView() {
+  girdView.value = !girdView.value;
+}
+
+// handle window resize
+function handleResize() {
+  girdView.value = (window.innerWidth < 640) ? true : girdView.value;
+}
+
 </script>
 
 <template>
@@ -127,9 +147,20 @@ function restore(id) {
               </button>
             </div>
             <Filters @apply-filters="performFiltering" />
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div class="flex items-center justify-center py-5">
+              <button @click="toggleView" class="hidden sm:block px-4 py-2 bg-indigo-600 text-gray-100 rounded hover:bg-indigo-500">
+                <span v-if="girdView" class="text-sm font-medium text-gray-100">List View</span>
+                <span v-else class="text-sm font-medium text-gray-100">Grid View</span>
+              </button>
+            </div>
+            <div v-if="girdView" class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
               <div v-for="movie in movieList.movies?.data" :key="movie.id" class="bg-gray-200 overflow-hidden shadow rounded-lg">
                 <MovieGrideElement :movieListId="movieList.id" :movie="movie" />
+              </div>
+            </div>
+            <div v-else class="mt-4">
+              <div v-for="movie in movieList.movies?.data" :key="movie.id" class="bg-gray-200 overflow-hidden shadow rounded-lg my-4">
+                <MovieListElement :movieListId="movieList.id" :movie="movie" />
               </div>
             </div>
             <Pagination @paginate="performPagination" :pagination="pagination"/>

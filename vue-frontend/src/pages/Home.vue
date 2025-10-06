@@ -1,12 +1,14 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onUnmounted } from 'vue';
 import MovieGrideElement from '../components/movie/MovieGrideElement.vue';
 import axiosClient from '../axios'
 import SearchBar from '../components/SearchBar.vue';
 import Pagination from '../components/Pagination.vue';
+import MovieListElement from '../components/movie/MovieListElement.vue';
 
 const movies = ref([]);
 const popular = ref(true);
+const girdView = ref(true);
 
 const pagination = ref({
   page: 1,
@@ -21,6 +23,9 @@ const filters = ref({
 
 // fetch popular movies on page load
 onMounted(() => {
+  // add window resize listener
+  window.addEventListener('resize', handleResize);
+  // popular movies
   axiosClient.get('/api/popular-movies')
     .then(response => {
       movies.value = response.data;
@@ -28,6 +33,11 @@ onMounted(() => {
     .catch(error => {
       console.log(error);
     });
+});
+
+// remove window resize listener
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 });
 
 // Search movies requested from search bar
@@ -68,6 +78,16 @@ function scrollToTop() {
   });
 }
 
+// Toggle the view between grid and list
+function toggleView() {
+  girdView.value = !girdView.value;
+}
+
+// handle window resize
+function handleResize() {
+  girdView.value = (window.innerWidth < 640) ? true : girdView.value;
+}
+
 </script>
 
 <template>
@@ -77,12 +97,22 @@ function scrollToTop() {
     </div>
   </header>
   <main>
-    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 relative">
       <SearchBar @search="performSearch"/>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        <div v-for="movie in movies" :key="popular ? `popular-${movie.id}` : `search-${movie.tmdb_id}`" class="bg-gray-200 overflow-hidden shadow rounded-lg">
+      <button @click="toggleView" class="hidden sm:block px-4 py-2 bg-indigo-600 text-gray-100 rounded hover:bg-indigo-500 absolute top-6 right-6">
+        <span v-if="girdView" class="text-sm font-medium text-gray-100">List View</span>
+        <span v-else class="text-sm font-medium text-gray-100">Grid View</span>
+      </button>
+      <div v-if="girdView" class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div v-for="movie in movies" :key="popular ? `grid-popular-${movie.id}` : `grid-search-${movie.tmdb_id}`" class="bg-gray-200 overflow-hidden shadow rounded-lg">
           <MovieGrideElement v-if="popular" :rank="movie.id" :movie="movie.movie" />
           <MovieGrideElement v-else :movie="movie" />
+        </div>
+      </div>
+      <div v-else class="">
+        <div v-for="movie in movies" :key="popular ? `list-popular-${movie.id}` : `list-search-${movie.tmdb_id}`" class="bg-gray-200 overflow-hidden shadow rounded-lg my-4">
+          <MovieListElement v-if="popular" :rank="movie.id" :movie="movie.movie" />
+          <MovieListElement v-else :movie="movie" />
         </div>
       </div>
     </div>
