@@ -7,7 +7,6 @@ use App\Services\MovieProcessor;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\MovieFilterRequest;
 use App\Domains\MovieList\Models\MovieList;
-use App\Exceptions\ApiResponseException;
 
 class MovieListController extends Controller
 {
