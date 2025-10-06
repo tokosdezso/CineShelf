@@ -28,6 +28,49 @@ The CineShelf project is a monorepo containing a Laravel backend (API, business 
 - Custom exceptions (notably `ApiResponseException`) are used for consistent API error responses.
 - Validation is handled via FormRequest classes (e.g., `RegistrationRequest`).
 - Authentication uses Laravel Sanctum in session/cookie mode: login and API requests are authenticated via session cookie and XSRF-TOKEN.
+- User context is available in controllers via `Auth::user()` or `$request->user()`.
+
+### Scheduled Jobs
+- Jobs are defined in `app/Domains/*/Jobs/` (e.g., `UpdatePopularMovies`, `UpdateAllMovies`, `UpdateSingleMovie`).
+- Jobs implement `ShouldQueue` and are dispatched for background processing (e.g., updating movie data from TMDB).
+- Job failures are logged; jobs can be chained for batch processing (see `UpdateAllMovies` and `UpdateSingleMovie`).
+- Scheduling is managed via Laravel's scheduler (see `app/Console/Kernel.php` if present).
+
+### Filament Admin Panel
+- Filament resources are in `app/Domains/*/Filament/Resources/` (e.g., `MovieListResource`, `MovieResource`, `GenreResource`, `PopularMovieResource`).
+- The Filament admin panel is accessible only to admin users (after login).
+- Features:
+  - List, create, edit, and delete resources (CRUD) for resources.
+  - Advanced table features: sorting, filtering, searching, pagination.
+  - Relation managers for managing related models.
+  - Custom pages for detailed views and actions.
+  - All actions are permission-checked; only authorized admins can access or modify data.
+  - UI is highly customizable via Filament's resource and page classes.
+
+### Policies
+- Policies are in `app/Domains/*/Policies/` (e.g., `MovieListPolicy`).
+- Policies control access to models (view, update, delete, create) and are linked via attributes (e.g., `#[UsePolicy(MovieListPolicy::class)]`).
+- Controllers use `$this->authorize()` for per-action checks.
+
+### Request Flow & Validation
+- API requests enter via `routes/api.php` and are routed to controllers.
+- Controllers use FormRequest classes (e.g., `MovieFilterRequest`, `RegistrationRequest`) for validation and authorization.
+- Validated data is passed to service classes for business logic.
+
+### Service Structure & Caching
+- All business logic is in service classes (e.g., `TMDBService`, `MovieProcessor`).
+- Services handle API calls, data processing, and throw `ApiResponseException` for errors.
+- Caching is handled via Laravel's Cache facade (e.g., movie/genre data from TMDB is cached for performance).
+- Only successful responses are cached; errors are never cached.
+
+### Model Relationships
+- Eloquent models are in `app/Domains/*/Models/` (e.g., `Movie`, `Genre`, `MovieList`, `PopularMovie`).
+- Relationships:
+  - `Movie` <-> `Genre`: many-to-many
+  - `MovieList` <-> `Movie`: many-to-many
+  - `MovieList` <-> `User`: many-to-one
+  - `PopularMovie` <-> `Movie`: many-to-one
+- Pivot tables are used for many-to-many relations (e.g., `movie_list_movie`).
 
 ### Error Handling
 - Controllers catch `ApiResponseException` and return a JSON error with status code and message.
@@ -94,4 +137,4 @@ The CineShelf project is a monorepo containing a Laravel backend (API, business 
 ---
 
 ## Contact
-For questions, contact the original author or check the README.md in each subproject for more details.
+For questions check the README.md in each subproject for more details.
