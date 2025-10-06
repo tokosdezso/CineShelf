@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use App\Exceptions\ApiResponseException;
 
 // Note: These tests mock the Guzzle client to avoid making real HTTP requests to the TMDB API.
 // It is not possible to use Http::fake() here because the TMDBService uses Guzzle directly.
@@ -46,6 +47,30 @@ class TMDBServiceTest extends TestCase
         $this->assertIsArray($result);
         $this->assertEquals('Popular Movie', $result[0]['title']);
         $this->assertEquals('Another Movie', $result[1]['title']);
+    }
+
+    /**
+     * Tests that getPopularMovies throws ApiResponseException if no movies are found.
+     *
+     * This test mocks the Guzzle client to return an empty response.
+     * It then verifies that the thrown exception is of type ApiResponseException
+     * with the expected message.
+     */
+    public function test_get_popular_movies_throws_exception_on_empty_response()
+    {
+        $mockClient = \Mockery::mock(Client::class);
+        $mockClient->shouldReceive('request')
+            ->andReturn(new GuzzleResponse(200, [], json_encode([])));
+
+        $service = app(TMDBService::class);
+        $reflection = new \ReflectionClass($service);
+        $property = $reflection->getProperty('client');
+        $property->setAccessible(true);
+        $property->setValue($service, $mockClient);
+
+        $this->expectException(ApiResponseException::class);
+        $this->expectExceptionMessage('No popular movies found in TMDB!');
+        $service->getPopularMovies();
     }
 
     /**
@@ -98,6 +123,29 @@ class TMDBServiceTest extends TestCase
         ], $result['genres']);
     }
 
+    /**
+     * Tests that getMovieDetails throws ApiResponseException if no movie is found.
+     *
+     * This test mocks the Guzzle client to return an empty response.
+     * It then verifies that the thrown exception is of type ApiResponseException
+     * with the expected message.
+     */
+    public function test_get_movie_details_throws_exception_on_empty_response()
+    {
+        $mockClient = \Mockery::mock(Client::class);
+        $mockClient->shouldReceive('request')
+            ->andReturn(new GuzzleResponse(200, [], json_encode([])));
+
+        $service = app(TMDBService::class);
+        $reflection = new \ReflectionClass($service);
+        $property = $reflection->getProperty('client');
+        $property->setAccessible(true);
+        $property->setValue($service, $mockClient);
+
+        $this->expectException(ApiResponseException::class);
+        $this->expectExceptionMessage('Movie not found in TMDB!');
+        $service->getMovieDetails(123);
+    }
 
     /**
      * Tests that getMovies returns data from the API.
@@ -128,6 +176,30 @@ class TMDBServiceTest extends TestCase
     }
 
     /**
+     * Tests that getMovies throws ApiResponseException if no movies are found.
+     *
+     * This test mocks the Guzzle client to return an empty response.
+     * It then verifies that the thrown exception is of type ApiResponseException
+     * with the expected message.
+     */
+    public function test_get_movies_throws_exception_on_empty_response()
+    {
+        $mockClient = \Mockery::mock(Client::class);
+        $mockClient->shouldReceive('request')
+            ->andReturn(new GuzzleResponse(200, [], json_encode([])));
+
+        $service = app(TMDBService::class);
+        $reflection = new \ReflectionClass($service);
+        $property = $reflection->getProperty('client');
+        $property->setAccessible(true);
+        $property->setValue($service, $mockClient);
+
+        $this->expectException(ApiResponseException::class);
+        $this->expectExceptionMessage('No movies found in TMDB for query: test');
+        $service->getMovies('test', 1);
+    }
+
+    /**
      * Tests that the TMDBService class handles API errors gracefully.
      *
      * This test mocks the Guzzle client to throw an exception when
@@ -148,5 +220,59 @@ class TMDBServiceTest extends TestCase
 
         $this->expectException(\Exception::class);
         $service->getPopularMovies();
+    }
+    /**
+     * Tests that getGenres returns data from the API.
+     *
+     * This test mocks the Guzzle client to return a successful response
+     * with a list of genres. It then verifies that the returned
+     * data is an array and that the names of the genres match
+     * the expected values.
+     */
+    public function test_get_genres_returns_data_from_api()
+    {
+        $mockClient = \Mockery::mock(Client::class);
+        $mockClient->shouldReceive('request')
+            ->andReturn(new GuzzleResponse(200, [], json_encode([
+                'genres' => [
+                    ['id' => 1, 'name' => 'Action'],
+                    ['id' => 2, 'name' => 'Comedy']
+                ]
+            ])));
+
+        $service = app(TMDBService::class);
+        $reflection = new \ReflectionClass($service);
+        $property = $reflection->getProperty('client');
+        $property->setAccessible(true);
+        $property->setValue($service, $mockClient);
+
+        $result = $service->getGenres();
+        $this->assertIsArray($result);
+        $this->assertEquals('Action', $result[0]['name']);
+        $this->assertEquals('Comedy', $result[1]['name']);
+    }
+
+    /**
+     * Tests that getGenres throws ApiResponseException if no genres are found.
+     *
+     * This test mocks the Guzzle client to return an empty response.
+     * It then verifies that the thrown exception is of type ApiResponseException
+     * with the expected message.
+     */
+    public function test_get_genres_throws_exception_on_empty_response()
+    {
+        $mockClient = \Mockery::mock(Client::class);
+        $mockClient->shouldReceive('request')
+            ->andReturn(new GuzzleResponse(200, [], json_encode([])));
+
+        $service = app(TMDBService::class);
+        $reflection = new \ReflectionClass($service);
+        $property = $reflection->getProperty('client');
+        $property->setAccessible(true);
+        $property->setValue($service, $mockClient);
+
+        $this->expectException(ApiResponseException::class);
+        $this->expectExceptionMessage('No genres found in TMDB!');
+        $service->getGenres();
     }
 }
