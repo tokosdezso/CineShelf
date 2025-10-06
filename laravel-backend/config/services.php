@@ -45,6 +45,7 @@ return [
         'image_base_url' => env('TMDB_IMAGE_BASE_URL', 'https://image.tmdb.org/t/p'),
         'popular_movie_display_number' => env('TMDB_POPULAR_MOVIE_NUMBER', '10'),
         'movie_search_uri' => env('TMDB_MOVIE_SEARCH_URI', '/3/search/movie'),
+        'genres_uri' => env('TMDB_GENRES_URI', '/3/genre/movie/list'),
     ],
 
     'pagination' => [

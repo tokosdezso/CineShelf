@@ -79,4 +79,22 @@ class TMDBService extends AbstractTMDBService
             return $data;
         });
     }
+
+    /**
+     * Fetch movie genres from TMDB.
+     * @return array The genres
+     */
+    public function getGenres(): array
+    {
+        $cacheKey = 'tmdb-movie-genres';
+        // cache the genres for 24 hours
+        return Cache::remember($cacheKey, 86400, function() {
+            $endpoint = config('services.tmdb.genres_uri');
+            $data = $this->getData($endpoint);
+            if (!isset($data['genres']) || !is_array($data['genres'])) {
+                throw new ApiResponseException('No genres found in TMDB!', 404);
+            }
+            return $data['genres'];
+        });
+    }
 }

@@ -5,8 +5,10 @@ namespace App\Domains\PopularMovie\Jobs;
 use App\Services\TMDBService;
 use Illuminate\Bus\Queueable;
 use App\Services\MovieProcessor;
+use App\Domains\Genre\Models\Genre;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
+use App\Exceptions\ApiResponseException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,20 +33,42 @@ class UpdatePopularMovies implements ShouldQueue
         Log::info('UpdatePopularMovies: job started');
 
         try {
-          // Fetch popular movies from TMDB
-          $movies = $tmdb->getPopularMovies();
+            // Fetch popular movies from TMDB
+            $movies = $tmdb->getPopularMovies();
 
-          if (empty($movies)) {
-              Log::info('UpdatePopularMovies: No movies fetched from TMDB.');
-              return;
-          }
+            // If there are new genres save them
+            $existingIds = Genre::pluck('tmdb_id')->toArray();
 
-          // Process and store the movies
-          $processor->storePopularMovies($movies);
-          Log::info('UpdatePopularMovies: Successfully updated popular movies from TMDB.');
+            $allGenreIds = collect($movies)
+                ->pluck('genre_ids')
+                ->flatten()
+                ->unique()
+                ->values()
+                ->all();
+            
+            $newGenres = array_filter($allGenreIds, function($genre) use ($existingIds) {
+                return !in_array($genre, $existingIds);
+            });
+
+            if (!empty($newGenres)) {
+                $genres = $tmdb->getGenres();
+                foreach ($genres as $genre) {
+                    if (in_array($genre['id'], $newGenres)) {
+                        Genre::create([
+                            'tmdb_id' => $genre['id'],
+                            'name' => $genre['name'],
+                        ]);
+                    }
+                }   
+            }
+            
+            // Process and store the movies
+            $processor->storePopularMovies($movies);
+            Log::info('UpdatePopularMovies: Successfully updated popular movies from TMDB.');
+        } catch (ApiResponseException $e) {
+            Log::error("UpdatePopularMovies: TMDB API error: {$e->getMessage()}");
         } catch (\Exception $e) {
             Log::error("UpdatePopularMovies: Failed to update popular movies from TMDB: {$e->getMessage()}");
-            return;
         }
     }
 
