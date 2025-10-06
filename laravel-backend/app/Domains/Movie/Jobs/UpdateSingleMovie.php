@@ -7,6 +7,7 @@ use App\Services\MovieProcessor;
 use App\Domains\Movie\Models\Movie;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
+use App\Exceptions\ApiResponseException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -53,9 +54,10 @@ class UpdateSingleMovie implements ShouldQueue
             // Update movie details in the database
             $processor->setMoieDetails($movieTMDB, $movieTMDB['genres'] ?? []);
             Log::info("UpdateSingleMovie: Successfully updated Movie ID {$this->movieId} details from TMDB.");
+        } catch (ApiResponseException $e) {
+            Log::error("UpdateSingleMovie: TMDB API error for Movie ID {$this->movieId}: {$e->getMessage()}");
         } catch (\Exception $e) {
             Log::error("UpdateSingleMovie: Failed to update Movie ID {$this->movieId} details from TMDB: {$e->getMessage()}");
-            return;
         }
     }
 }
