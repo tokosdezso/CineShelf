@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domains\Genre\Models\Genre;
+use App\Exceptions\ApiResponseException;
 
 class GenresController extends Controller
 {
@@ -13,10 +14,11 @@ class GenresController extends Controller
     {
         try {
             $genres = Genre::all();
+            return response()->json($genres);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'No genres found!'], $e->getCode());
+            return response()->json([
+                'message' => 'Unexpected error: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json($genres);
     }
 }

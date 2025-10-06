@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use App\Exceptions\ApiResponseException;
 
 abstract class AbstractTMDBService
 {
@@ -30,11 +31,15 @@ abstract class AbstractTMDBService
                 'query' => $query
             ]);
             if ($response->getStatusCode() === 200) {
-                return json_decode($response->getBody(), true);
+                $data = json_decode($response->getBody(), true);
+                if (is_array($data)) {
+                    return $data;
+                }
+                throw new ApiResponseException('Invalid response from TMDB API', 502);
             }
-            return [];
+            throw new ApiResponseException('TMDB API returned non-200 status', $response->getStatusCode());
         } catch (\Exception $e) {
-            throw new \Exception('TMDB API request failed with status code: ' . $e->getCode());
+            throw new ApiResponseException('TMDB API request failed: ' . $e->getMessage(), $e->getCode() ?: 500);
         }
     }
 }

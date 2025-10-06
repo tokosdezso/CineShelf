@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
+use App\Exceptions\ApiResponseException;
 
 class TMDBService extends AbstractTMDBService
 {
@@ -30,7 +31,11 @@ class TMDBService extends AbstractTMDBService
         // cache the popular movies for 1 hour
         return Cache::remember($cacheKey, 3600, function() use ($page) {
             $endpoint = config('services.tmdb.popular_movies_uri');
-            return $this->getData($endpoint, ['page' => $page])['results'] ?? [];
+            $data = $this->getData($endpoint, ['page' => $page]);
+            if (!isset($data['results']) || !is_array($data['results'])) {
+                throw new ApiResponseException('No popular movies found in TMDB!', 404);
+            }
+            return $data['results'];
         });
     }
     
@@ -45,11 +50,14 @@ class TMDBService extends AbstractTMDBService
         // cache the movie details for 12 hours
         return Cache::remember($cacheKey, 43200, function() use ($movieTMDBId) {
             $endpoint = config('services.tmdb.movie_details_uri') . '/' . $movieTMDBId;
-            return $this->getData($endpoint) ?? [];
+            $data = $this->getData($endpoint);
+            if (!$data || !isset($data['id'])) {
+                throw new ApiResponseException('Movie not found in TMDB!', 404);
+            }
+            return $data;
         });
-        
     }
-    
+
     /**
      * Search for movies in TMDB.
      *
@@ -64,7 +72,11 @@ class TMDBService extends AbstractTMDBService
         // cache the search results for 15 minutes
         return Cache::remember($cacheKey, 900, function() use ($query, $page) {
             $endpoint = config('services.tmdb.movie_search_uri');
-            return $this->getData($endpoint, ['query' => $query, 'page' => $page]) ?? []; 
+            $data = $this->getData($endpoint, ['query' => $query, 'page' => $page]);
+            if (!isset($data['results']) || !is_array($data['results'])) {
+                throw new ApiResponseException('No movies found in TMDB for query: ' . $query, 404);
+            }
+            return $data;
         });
     }
 }

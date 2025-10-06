@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\TMDBService;
 use App\Domains\Genre\Models\Genre;
 use App\Domains\Movie\Models\Movie;
+use App\Exceptions\ApiResponseException;
 
 class MovieController extends Controller
 {
@@ -28,27 +29,30 @@ class MovieController extends Controller
      */
     public function show($id)
     {
-        $imageBaseUrl = config('services.tmdb.image_base_url') . '/w500';
-
-        // Check if the movie is already in the database
-        $movie = Movie::where('tmdb_id', $id)->with('genres')->first();
-
-        if ($movie) {
-            $movie->poster_path = $movie->poster_path 
-                ? $imageBaseUrl . $movie->poster_path 
-                : null;
-            return response()->json($movie);
-        }
-
-        // Get movie details from TMDB
         try {
-            $movie = $this->tmdb->getMovieDetails($id);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Movie not found in TMDB!' . $e->getMessage()], $e->getCode());
-        }
+            $imageBaseUrl = config('services.tmdb.image_base_url') . '/w500';
 
-        if (!$movie) {
-            return response()->json(['message' => 'Movie not found in TMDB!'], 404);
+            // Check if the movie is already in the database
+            $movie = Movie::where('tmdb_id', $id)->with('genres')->first();
+
+            if ($movie) {
+                $movie->poster_path = $movie->poster_path 
+                    ? $imageBaseUrl . $movie->poster_path 
+                    : null;
+                return response()->json($movie);
+            }
+
+            // Get movie details from TMDB
+            $movie = $this->tmdb->getMovieDetails($id);
+        } catch (ApiResponseException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => $e->getData()
+            ], $e->getStatusCode());
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Unexpected error: ' . $e->getMessage()
+            ], 500);
         }
 
         // Build an array like movie model
@@ -70,56 +74,67 @@ class MovieController extends Controller
     }
 
     // Store a movie in the database
-    public function store()
+    public function store(Request $request)
     {
-        $tmdb_id = request()->tmdb_id;
-
-        // Check if the movie is already in the database
-        $movie = Movie::where('tmdb_id', $tmdb_id)->first();
-
-        if ($movie) {
-            return response()->json($movie);
-        }
-
-        // Get movie details from TMDB
         try {
-            $movie = $this->tmdb->getMovieDetails($tmdb_id);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Movie not found in TMDB!' . $e->getMessage()], $e->getCode());
-        }
-
-        // Save movie to database
-        $movieModel = Movie::create(
-            [
-                'tmdb_id'      => $movie['id'],
-                'title'        => $movie['title'] ?? 'Untitled',
-                'language'     => $movie['original_language'] ?? 'en',
-                'popularity'   => $movie['popularity'] ?? 0.0000,
-                'vote_average' => $movie['vote_average'] ?? 0.00,
-                'release_date' => $movie['release_date'] ?? now(),
-                'poster_path'  => $movie['poster_path'] ?? '/default.jpg',
-                'overview'     => $movie['overview'] ?? '',
-                'runtime'      => $movie['runtime'] ?? null,
-            ]
-        );
-
-        // If there are new genres save them
-        $existingIds = Genre::pluck('tmdb_id')->toArray();
-        $newGenres = array_filter($movie['genres'], function($genre) use ($existingIds) {
-            return !in_array($genre['id'], $existingIds);
-        });
-        foreach ($newGenres as $genre) {
-            Genre::create([
-                'tmdb_id' => $genre['id'],
-                'name' => $genre['name'],
+            $validated = $request->validate([
+                'tmdb_id' => 'integer|min:1',
             ]);
+
+            $tmdb_id = $validated['tmdb_id'];
+
+            // Check if the movie is already in the database
+            $movie = Movie::where('tmdb_id', $tmdb_id)->first();
+
+            if ($movie) {
+                return response()->json($movie);
+            }
+
+            // Get movie details from TMDB
+            $movie = $this->tmdb->getMovieDetails($tmdb_id);
+
+            // Save movie to database
+            $movieModel = Movie::create(
+                [
+                    'tmdb_id'      => $movie['id'],
+                    'title'        => $movie['title'] ?? 'Untitled',
+                    'language'     => $movie['original_language'] ?? 'en',
+                    'popularity'   => $movie['popularity'] ?? 0.0000,
+                    'vote_average' => $movie['vote_average'] ?? 0.00,
+                    'release_date' => $movie['release_date'] ?? now(),
+                    'poster_path'  => $movie['poster_path'] ?? '/default.jpg',
+                    'overview'     => $movie['overview'] ?? '',
+                    'runtime'      => $movie['runtime'] ?? null,
+                ]
+            );
+
+            // If there are new genres save them
+            $existingIds = Genre::pluck('tmdb_id')->toArray();
+            $newGenres = array_filter($movie['genres'], function($genre) use ($existingIds) {
+                return !in_array($genre['id'], $existingIds);
+            });
+            foreach ($newGenres as $genre) {
+                Genre::create([
+                    'tmdb_id' => $genre['id'],
+                    'name' => $genre['name'],
+                ]);
+            }
+
+            // Sync genres
+            $genreIds = Genre::whereIn('tmdb_id', array_column($movie['genres'], 'id'))->pluck('id')->toArray();
+            $movieModel->genres()->sync($genreIds);
+
+            return response()->json($movieModel);
+        } catch (ApiResponseException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => $e->getData()
+            ], $e->getStatusCode());
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Unexpected error: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Sync genres
-        $genreIds = Genre::whereIn('tmdb_id', array_column($movie['genres'], 'id'))->pluck('id')->toArray();
-        $movieModel->genres()->sync($genreIds);
-
-        return response()->json($movieModel);
     }
 
     /**
@@ -130,23 +145,26 @@ class MovieController extends Controller
      */
     public function index(Request $request)
     {
-        $validated = $request->validate([
-            'query' => 'string|min:3',
-            'page' => 'integer|min:1',
-        ]);
-
-        $query = $validated['query'];
-        $page = $validated['page'];
-
         try {
-            $movies = $this->tmdb->getMovies($query, $page);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'No movies found in TMDB!' . $e->getMessage()], $e->getCode());
-        }
+            $validated = $request->validate([
+                'query' => 'string|min:3',
+                'page' => 'integer|min:1',
+            ]);
 
-        // If there are no results or it is empty
-        if (!$movies['results'] || empty($movies['results'])) {
-            return response()->json([]);
+            $query = $validated['query'];
+            $page = $validated['page'];
+
+            // Get movies from TMDB
+            $movies = $this->tmdb->getMovies($query, $page);
+        } catch (ApiResponseException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => $e->getData()
+            ], $e->getStatusCode());
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Unexpected error: ' . $e->getMessage()
+            ], 500);
         }
 
         $imageBaseUrl = config('services.tmdb.image_base_url') . '/w500';
