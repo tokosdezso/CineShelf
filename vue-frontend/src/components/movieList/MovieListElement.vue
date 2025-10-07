@@ -27,6 +27,7 @@ defineProps({
       <p v-if="movieList.movies.length > 0" class="mt-1 text-xs/5">
         <span class="flex items-center justify-center text-sm font-medium text-gray-600">Titles: {{ (movieList.movies.map((movie, index) => index < 3 ? movie.title : null)).filter(Boolean).join(', ') }}, ...</span>
       </p>
+      <p v-else class="text-sm">&nbsp;</p>
     </div>
   </li>
 </template>

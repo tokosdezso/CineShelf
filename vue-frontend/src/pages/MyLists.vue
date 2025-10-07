@@ -28,10 +28,31 @@ onMounted(() => {
     </header>
     <main>
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <ul v-for="movieList in movieLists" :key="movieList.id" class="bg-gray-00 overflow-hidden shadow rounded-lg py-5">
-          <MovieListsElement :movieList="movieList" />
-        </ul>
+        <div v-if="movieLists.some(list => !list.deleted_at)">
+          <h4 class="text-3xl font-bold tracking-tight text-gray-200 py-5 text-center align-items-center">Your Movie Lists</h4>
+          <ul class="overflow-hidden shadow rounded-lg my-5">
+            <div 
+              v-for="movieList in movieLists"
+              :key="movieList.id"
+              class="my-2"
+            >
+              <MovieListsElement v-if="!movieList.deleted_at" :movieList="movieList" />
+            </div>
+          </ul>
+        </div>
         <CreateMovieList :movieLists="movieLists" @update:movieLists="movieLists = $event"/>
+        <div v-if="movieLists.some(list => list.deleted_at)">
+          <h4 class="text-3xl font-bold tracking-tight text-gray-200 py-5 text-center align-items-center">Deleted Movie Lists</h4>
+          <ul class="overflow-hidden shadow rounded-lg my-5">
+            <div 
+              v-for="movieList in movieLists"
+              :key="movieList.id"
+              class="my-2"
+            >
+              <MovieListsElement v-if="movieList.deleted_at" :movieList="movieList" />
+            </div>
+          </ul>
+        </div>
       </div>
     </main>
 </template>
