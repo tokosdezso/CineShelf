@@ -3,7 +3,7 @@ import { onMounted, ref, inject } from 'vue';
 import axiosClient from '../axios';
 import { useRoute } from 'vue-router';
 import router from '../router.js';
-import { StarIcon as StarSolid } from '@heroicons/vue/24/solid';
+import { StarIcon as StarSolid, PhotoIcon } from '@heroicons/vue/24/solid';
 import { useAddMovieModalStore } from '../stores/modal.js';
 import GoBack from '../components/GoBack.vue';
 
@@ -82,7 +82,8 @@ function openAddModal(movie) {
           
           <div class="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pt-6 lg:pr-8 lg:pb-16">
             <div class="">
-              <img class="w-full" :src="movie.poster_path" :alt="movie.title" />
+              <img v-if="movie.poster_path && !movie.poster_path.includes('/default.jpg')" class="w-full" :src="movie.poster_path" :alt="movie.title" />
+              <PhotoIcon v-else class="w-32 h-58 text-gray-200 mx-auto" />
             </div>
           </div>
         </div>

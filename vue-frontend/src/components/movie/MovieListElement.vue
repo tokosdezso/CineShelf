@@ -19,7 +19,8 @@
     >
       <PlusIcon class="w-6 h-6" />
     </button>
-    <img :src="movie.poster_path" alt="Image" class=" h-56 object-contain w-62 flex-shrink-0">
+    <img v-if="movie.poster_path  && !movie.poster_path.includes('/default.jpg')" :src="movie.poster_path" alt="Image" class=" h-56 object-contain w-62 flex-shrink-0">
+    <PhotoIcon v-else class="w-62 h-56 text-gray-900 mx-auto" />
     <div class="px-4 py-4 flex-1">
       <h3 @click="$router.push({ name: 'SingleMovie', params: { id: movie.tmdb_id } })"
         class="text-lg font-semibold text-gray-900">
@@ -51,7 +52,7 @@
 <script setup>
 import { StarIcon as StarSolid } from '@heroicons/vue/24/solid'
 import router from '../../router.js';
-import { TrashIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import { TrashIcon, PlusIcon, PhotoIcon } from '@heroicons/vue/24/outline'
 import axiosClient from '../../axios.js';
 import { useAddMovieModalStore } from '../../stores/modal.js'
 import { inject } from 'vue';
