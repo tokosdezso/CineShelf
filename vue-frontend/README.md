@@ -1,5 +1,4 @@
-# Vue 3 + Vite
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+# CineShelf Vue Frontend
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+This is the frontend SPA for CineShelf, built with Vue 3 and Vite. It provides a modern, responsive user interface for browsing, searching, and managing movies and movie lists, communicating with the Laravel backend via axios. State management is handled with Pinia, and all user feedback is delivered through a global toast notification system for a seamless experience. For setup and API details, see the main project documentation.

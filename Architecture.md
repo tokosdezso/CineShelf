@@ -101,6 +101,7 @@ The CineShelf project is a monorepo containing a Laravel backend (API, business 
 - Movie listing supports both grid and list views (toggleable)
 - Responsive design: mobile and desktop layouts
 - Pagination and search/filter for movies
+- User feedback (success and error messages) is provided via a global toast notification system.
 
 ---
 

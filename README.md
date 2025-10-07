@@ -113,4 +113,4 @@ CineShelf is a monorepo containing a Laravel backend (API, business logic, datab
 
 ---
 
-For more details, see `Architecture.md` and the README files in each subproject.
+For more details, see `Architecture.md`.
