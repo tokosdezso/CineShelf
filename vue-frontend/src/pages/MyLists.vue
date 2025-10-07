@@ -1,10 +1,11 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, inject} from 'vue';
 import axiosClient from '../axios';
 import MovieListsElement from '../components/movieList/MovieListElement.vue';
 import CreateMovieList from '../components/movieList/CreateMovieList.vue';
 
 const movieLists = ref([]);
+const triggerToast = inject('triggerToast');
 
 onMounted(() => {
   axiosClient.get('/api/movie-lists?with_trashed=1')
@@ -13,6 +14,7 @@ onMounted(() => {
     })
     .catch(error => {
       console.log(error);
+      triggerToast && triggerToast(error.response?.data?.message || 'Error list the movie lists!', 'error');
     });
 });
 

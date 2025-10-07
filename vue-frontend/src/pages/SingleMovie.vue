@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, inject } from 'vue';
 import axiosClient from '../axios';
 import { useRoute } from 'vue-router';
 import router from '../router.js';
@@ -11,6 +11,7 @@ const route = useRoute();
 const movie = ref([]);
 const errorMessage = ref('');
 const modalStore = useAddMovieModalStore();
+const triggerToast = inject('triggerToast');
 
 // fetch single movie list
 onMounted(() => {
@@ -24,6 +25,7 @@ onMounted(() => {
         console.log(error.response.data.message);
         errorMessage.value = error.response.data.message;
       }
+      triggerToast && triggerToast(error.response?.data?.message || 'Error creating list!', 'error');
     });
 });
 
@@ -36,7 +38,7 @@ function openAddModal(movie) {
       })
       .catch(error => {
         console.log(error);
-        alert(error.response.data.message);
+        triggerToast && triggerToast(error.response?.data?.message || 'Error creating list!', 'error');
       });
   } else {
     modalStore.open(movie.id, movie.title)    
@@ -72,7 +74,8 @@ function openAddModal(movie) {
             <span class="flex py-2 text-sm font-medium text-gray-100">Runtime: {{ movie.runtime ?? '-' }} min</span>
             <span class="flex py-2 text-sm font-medium text-gray-100">Language: {{ movie.language }}</span>
             <button @click="openAddModal(movie)" 
-              class="mt-4 flex items-center justify-center rounded-full border border-indigo-600 bg-indigo-500 px-4 py-2 text-sm font-medium text-gray-100 hover:bg-indigo-600 absolute right-0 bottom-0">
+              class="mt-4 flex items-center justify-center rounded-full border border-indigo-600 bg-indigo-500 px-4 py-2 text-sm font-medium text-gray-100 hover:bg-indigo-600 absolute right-0 bottom-0"
+            >
               Add to List
             </button>
           </div>

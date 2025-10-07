@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, onUnmounted } from 'vue';
+import { onMounted, ref, onUnmounted, inject } from 'vue';
 import axiosClient from '../axios'
 import { useRoute } from 'vue-router'
 import MovieGrideElement from '../components/movie/MovieGrideElement.vue';
@@ -27,6 +27,7 @@ const pagination = ref({
   per_page: 20,
 });
 const girdView = ref(true);
+const triggerToast = inject('triggerToast');
 
 // fetch single movie list
 onMounted(() => {
@@ -71,7 +72,7 @@ function deleteMovieList(id) {
   if (confirm('Are you sure you want to delete this list?')) {
     axiosClient.delete(`/api/movie-lists/${id}`)
       .then(() => {
-        alert('The list has been deleted.');
+        triggerToast && triggerToast('The list has been deleted.', 'success');
         // Redirect to MyLists page after deletion
         router.push({ name: 'MyLists' });
       })
@@ -80,6 +81,7 @@ function deleteMovieList(id) {
         if (error.response.status === 404) {
           errorMessage.value = error.response.data.message;
         }
+        triggerToast && triggerToast(error.response?.data?.message || 'Error creating list!', 'error');
       });
   }
 }
@@ -88,7 +90,7 @@ function deleteMovieList(id) {
 function restore(id) {
   axiosClient.put(`/api/movie-lists/${id}`)
     .then(() => {
-      alert('The list has been restored.');
+      triggerToast && triggerToast('The list has been restored.', 'success');
       // Refresh the current page to show the restored list
       router.go(0);
     })
@@ -97,6 +99,7 @@ function restore(id) {
       if (error.response.status === 404) {
         errorMessage.value = error.response.data.message;
       }
+      triggerToast && triggerToast(error.response?.data?.message || 'Error creating list!', 'error');
     });
 }
 
@@ -142,13 +145,17 @@ function handleResize() {
               </p>
               <button type="button"
                 @click="deleteMovieList(movieList.id)"
-                class="rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                class="rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
                 Delete
               </button>
             </div>
             <Filters @apply-filters="performFiltering" />
             <div class="flex items-center justify-center py-5">
-              <button @click="toggleView" class="hidden sm:block px-4 py-2 bg-indigo-600 text-gray-100 rounded hover:bg-indigo-500">
+              <button v-if="movieList.movies?.total > 0"
+                @click="toggleView"
+                class="hidden sm:block px-4 py-2 bg-indigo-600 text-gray-100 rounded hover:bg-indigo-500"
+              >
                 <span v-if="girdView" class="text-sm font-medium text-gray-100">List View</span>
                 <span v-else class="text-sm font-medium text-gray-100">Grid View</span>
               </button>
@@ -176,7 +183,8 @@ function handleResize() {
               <button 
                 type="button"
                 @click="restore(movieList.id)"
-                class="rounded-md bg-indigo-700 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                class="rounded-md bg-indigo-700 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
                 Restore the list
               </button>
             </div>
@@ -187,7 +195,8 @@ function handleResize() {
         <div class="flex items-center justify-center py-5">
             <button @click="$router.push({ name: 'MyLists' })"
               type="button"
-              class="rounded-md bg-indigo-700 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+              class="rounded-md bg-indigo-700 px-3.5 py-2.5 text-sm font-semibold text-gray-200 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
               Back to lists
             </button>
         </div>

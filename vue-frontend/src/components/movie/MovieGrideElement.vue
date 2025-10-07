@@ -52,6 +52,7 @@ import router from '../../router.js';
 import { TrashIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import axiosClient from '../../axios';
 import { useAddMovieModalStore } from '../../stores/modal.js'
+import { inject } from 'vue';
 
 defineProps({
   movie: {
@@ -68,17 +69,18 @@ defineProps({
   },
 });
 
+const triggerToast = inject('triggerToast');
+
 // remove movie from the list
 function removeMovie(movieListId, movieId) {
   axiosClient.put(`/api/movie-lists/${movieListId}`, { remove_movie_id: movieId })
     .then(() => {
-      alert('The list has been updated.');
-      // Refresh the current page to show the restored list
+      triggerToast && triggerToast('The list has been updated.', 'success');
       router.go(0);
     })
     .catch(error => {
       console.log(error);
-      alert(error.response.data.message);
+      triggerToast && triggerToast(error.response?.data?.message || 'Error updating list!', 'error');
     });
 }
 
@@ -94,7 +96,7 @@ function openAddModal(movie) {
       })
       .catch(error => {
         console.log(error);
-        alert(error.response.data.message);
+        triggerToast && triggerToast(error.response?.data?.message || 'Error adding movie!', 'error');
       });
   } else {
     modalStore.open(movie.id, movie.title)    

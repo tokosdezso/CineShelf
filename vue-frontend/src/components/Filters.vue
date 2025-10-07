@@ -1,10 +1,10 @@
 <script setup>
-import { ref, defineEmits, onMounted } from 'vue';
+import { ref, defineEmits, onMounted, inject } from 'vue';
 import axiosClient from '../axios';
 
 const genres = ref([]);
 const emit = defineEmits(['apply-filters']);
-
+const triggerToast = inject('triggerToast');
 const filters = ref({
   with_genres: '',
   vote_average_gte: '',
@@ -22,6 +22,7 @@ onMounted(() => {
     })
     .catch(error => {
       console.log(error);
+      triggerToast && triggerToast(error.response?.data?.message || 'Error list the genres!', 'error');
     });
 });
 

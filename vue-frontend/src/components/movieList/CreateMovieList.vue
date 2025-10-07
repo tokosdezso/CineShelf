@@ -1,6 +1,6 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue';
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import axiosClient from '../../axios';
 
 const props = defineProps({
@@ -11,7 +11,7 @@ const isCreatingAList = ref(false);
 const data = ref({
   name: '',
 });
-
+const triggerToast = inject('triggerToast');
 
 // Create a new movie list.
 function createMovieList() {
@@ -25,7 +25,7 @@ function createMovieList() {
     })
     .catch(error => {
       console.log(error);
-      alert(error.response.data.message);
+      triggerToast && triggerToast(error.response?.data?.message || 'Error creating list!', 'error');
     });
 }
 

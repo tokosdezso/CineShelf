@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, onUnmounted } from 'vue';
+import { onMounted, ref, onUnmounted, inject } from 'vue';
 import MovieGrideElement from '../components/movie/MovieGrideElement.vue';
 import axiosClient from '../axios'
 import SearchBar from '../components/SearchBar.vue';
@@ -21,6 +21,8 @@ const filters = ref({
   page: 1,
 });
 
+const triggerToast = inject('triggerToast');
+
 // fetch popular movies on page load
 onMounted(() => {
   // add window resize listener
@@ -32,6 +34,7 @@ onMounted(() => {
     })
     .catch(error => {
       console.log(error);
+      triggerToast && triggerToast(error.response?.data?.message || 'Error list the popular movies!', 'error');
     });
 });
 
@@ -67,6 +70,7 @@ function search() {
     })
     .catch(error => {
       console.log(error);
+      triggerToast && triggerToast(error.response?.data?.message || 'Error list the movies!', 'error');
     });
 }
 
@@ -99,7 +103,10 @@ function handleResize() {
   <main>
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 relative">
       <SearchBar @search="performSearch"/>
-      <button @click="toggleView" class="hidden sm:block px-4 py-2 bg-indigo-600 text-gray-100 rounded hover:bg-indigo-500 absolute top-6 right-6">
+      <button v-if="movies.length > 0"
+        @click="toggleView"
+        class="hidden sm:block px-4 py-2 bg-indigo-600 text-gray-100 rounded hover:bg-indigo-500 absolute top-6 right-6"
+      >
         <span v-if="girdView" class="text-sm font-medium text-gray-100">List View</span>
         <span v-else class="text-sm font-medium text-gray-100">Grid View</span>
       </button>
