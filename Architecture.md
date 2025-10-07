@@ -98,6 +98,9 @@ The CineShelf project is a monorepo containing a Laravel backend (API, business 
 - State management with Pinia
 - Auth flow: login, registration, token storage
 - Modern UI with slots, layouts, and reusable components
+- Movie listing supports both grid and list views (toggleable)
+- Responsive design: mobile and desktop layouts
+- Pagination and search/filter for movies
 
 ---
 
