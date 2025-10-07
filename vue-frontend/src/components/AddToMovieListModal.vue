@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, inject } from 'vue'
 import axiosClient from '../axios'
 import { useAddMovieModalStore } from '../stores/modal.js'
 
@@ -45,6 +45,7 @@ const modalStore = useAddMovieModalStore()
 const lists = ref([])
 const loading = ref(false)
 const selectedListId = ref("")
+const triggerToast = inject('triggerToast');
 
 // Watch the isOpen property of the store
 watch(
@@ -73,13 +74,12 @@ async function addToList() {
   if (!selectedListId.value) return
     await axiosClient.put(`/api/movie-lists/${selectedListId.value}`, { add_movie_id: modalStore.movieId })
       .then(() => {
-        alert('Movie added to list!');
-        // Refresh the current page to show the restored list
         modalStore.close()
+        triggerToast && triggerToast('Movie added to list!', 'success');
       })
       .catch(error => {
         console.log(error);
-        alert(error.response.data.message);
+        triggerToast && triggerToast(error.response?.data?.message || 'Error adding movie!', 'error');
       });
 }
 </script>

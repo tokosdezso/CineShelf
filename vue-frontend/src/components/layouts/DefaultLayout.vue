@@ -84,6 +84,7 @@
     <RouterView />
 
     <AddToMovieListModal v-if="modalStore.isOpen" />
+    <Toast :message="toastMessage" :show="showToast" :type="toastType" />
   </div>
 </template>
 
@@ -97,6 +98,8 @@ import { computed } from 'vue'
 import useUserStore from '../../stores/user.js'
 import { useAddMovieModalStore } from '../../stores/modal.js'
 import AddToMovieListModal from './../AddToMovieListModal.vue'
+import { ref, provide } from 'vue';
+import Toast from '../Toast.vue';
 
 const userStore = useUserStore();
 
@@ -107,12 +110,29 @@ const navigation = [
   { name: 'My Lists', to: {name: 'MyLists'}, current: false },
 ]
 
+const toastType = ref('success');
+const toastMessage = ref('');
+const showToast = ref(false);
+
 const modalStore = useAddMovieModalStore()
 
 function logout() {
   axiosClient.post('/logout')
     .then(() => {
       router.push({ name: 'Login' })
-  })
+  });
 }
+
+// show toast
+function triggerToast(message, type = 'success') {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+    toastMessage.value = '';
+  }, 2500);
+}
+
+provide('triggerToast', triggerToast);
 </script>
