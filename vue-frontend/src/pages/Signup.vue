@@ -41,9 +41,10 @@ function submit() {
           <label for="name" class="block text-sm/6 font-medium text-gray-100">Full Name</label>
           <div class="mt-2">
             <input name="name"
-                   id="name"
-                   v-model="data.name"
-                   class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+              id="name"
+              v-model="data.name"
+              class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            />
           </div>
           <p class="text-sm mt-1 text-red-600">
             {{ errors.name ? errors.name[0] : '' }}
@@ -53,11 +54,12 @@ function submit() {
           <label for="email" class="block text-sm/6 font-medium text-gray-100">Email address</label>
           <div class="mt-2">
             <input type="email"
-                   name="email"
-                   id="email"
-                   autocomplete="email"
-                   v-model="data.email"
-                   class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+              name="email"
+              id="email"
+              autocomplete="email"
+              v-model="data.email"
+              class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            />
           </div>
           <p class="text-sm mt-1 text-red-600">
             {{ errors.email ? errors.email[0] : '' }}
@@ -70,10 +72,11 @@ function submit() {
           </div>
           <div class="mt-2">
             <input type="password"
-                   name="password"
-                   id="password"
-                   v-model="data.password"
-                   class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+              name="password"
+              id="password"
+              v-model="data.password"
+              class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            />
           </div>
           <p class="text-sm mt-1 text-red-600">
             {{ errors.password ? errors.password[0] : '' }}
@@ -86,10 +89,11 @@ function submit() {
           </div>
           <div class="mt-2">
             <input type="password"
-                   name="password"
-                   id="passwordConfirmation"
-                   v-model="data.password_confirmation"
-                   class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+              name="password"
+              id="passwordConfirmation"
+              v-model="data.password_confirmation"
+              class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            />
           </div>
         </div>
         <div>

@@ -7,14 +7,16 @@
       v-if="movieListId"
       @click="removeMovie(movieListId, movie.id)"
       class="absolute top-2 right-2 text-red-500 hover:text-red-600"
-      title="Delete">
+      title="Delete"
+    >
       <TrashIcon class="w-6 h-6" />
     </button>
     <button 
       v-else
       @click="openAddModal(movie)"
       class="absolute top-2 right-2 text-indigo-500 hover:text-indigo-600 rounded-full border border-indigo-500 hover:border-indigo-600 p-1"
-      title="Add">
+      title="Add"
+    >
       <PlusIcon class="w-6 h-6" />
     </button>
     <img :src="movie.poster_path" alt="Image" class="w-full h-48 object-contain">

@@ -13,7 +13,9 @@
                   :key="item.name"
                   :to="item.to"
                   :class="[$route.name === item.to.name ? 'bg-gray-950/50 text-white' : 'here text-gray-300 hover:bg-white/5 hover:text-white', 'rounded-md px-3 py-2 text-sm font-medium']"
-                  :aria-current="$route.name === item.name ? 'page' : undefined">{{ item.name }}
+                  :aria-current="$route.name === item.name ? 'page' : undefined"
+                >
+                  {{ item.name }}
                 </RouterLink>
               </div>
             </div>
@@ -59,13 +61,15 @@
             :key="item.name"
             :to="item.to"
             :class="[$route.name === item.to.name ? 'bg-gray-950/50 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white', 'block rounded-md px-3 py-2 text-base font-medium']"
-            :aria-current="item.current ? 'page' : undefined">{{ item.name }}
+            :aria-current="item.current ? 'page' : undefined"
+          >
+            {{ item.name }}
           </RouterLink>
         </div>
         <div class="border-t border-white/10 pt-4 pb-3">
           <div class="flex items-center px-5">
             <div class="shrink-0">
-                  <UserIcon class="size-10 p-1 rounded-full outline -outline-offset-1 outline-white/10" />
+              <UserIcon class="size-10 p-1 rounded-full outline -outline-offset-1 outline-white/10" />
             </div>
             <div class="ml-3">
               <div class="text-base/5 font-medium text-white">{{ user.name }}</div>
@@ -74,7 +78,8 @@
           </div>
           <div class="mt-3 space-y-1 px-2">
             <DisclosureButton @click="logout" 
-                            class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-white/5 hover:text-white">
+              class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-white/5 hover:text-white"
+            >
               Sign out
             </DisclosureButton>
           </div>

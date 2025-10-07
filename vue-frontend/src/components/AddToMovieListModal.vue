@@ -4,18 +4,19 @@
     <div class="bg-gray-800 p-6 rounded shadow relative w-96">
       <button 
         @click="modalStore.close()" 
-        class="absolute top-2 right-2 text-white hover:text-gray-100">✖</button>
-
+        class="absolute top-2 right-2 text-white hover:text-gray-100"
+      >
+        ✖
+      </button>
       <h2 class="text-lg font-bold mb-4 text-gray-100">Add {{ modalStore.movieTitle }} to a List</h2>
-
       <div v-if="loading" class="text-gray-100">Loading your lists...</div>
-
       <div v-else>
         <label for="listSelect" class="block text-sm font-medium text-gray-100">Choose a list</label>
         <select 
           id="listSelect"
           v-model="selectedListId" 
-          class="mt-3 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 py-2">
+          class="mt-3 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 py-2"
+        >
           <option disabled value="" class="mt-2 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100">-- Select a list --</option>
           <option v-for="list in lists" :key="list.id" :value="list.id" class="mt-2 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100">
             {{ list.name }}
@@ -27,7 +28,8 @@
           <button 
             @click="addToList" 
             :disabled="!selectedListId" 
-            class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-500">
+            class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-500"
+          >
             Add
           </button>
         </div>
